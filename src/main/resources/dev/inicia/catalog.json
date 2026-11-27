@@ -14,12 +14,14 @@
           "arch": "x64",
           "type": "nsis",
           "url": "https://github.com/ip7z/7zip/releases/download/26.06/7z2606-x64.exe",
+          "size": 1659704,
           "sha256": "9b697f65ecc2d9b0152f5ee96d72dde522a7827690349d9307935dacf40f42ec"
         },
         {
           "arch": "arm64",
           "type": "nsis",
           "url": "https://github.com/ip7z/7zip/releases/download/26.06/7z2606-arm64.exe",
+          "size": 1589681,
           "sha256": "036a00d478ef81f4b4b85fb37b0f934d558341f3f51aa7d36d2a26454740e625"
         }
       ]
@@ -37,6 +39,7 @@
           "arch": "x64",
           "type": "nsis",
           "url": "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.9.9.1/npp.8.9.9.1.Installer.x64.exe",
+          "size": 7048536,
           "sha256": "ce3267f5c4e7e42f847e00f4b20234da6150647203033cdde34a69593efc3152",
           "signer": "NOTEPAD++"
         }
@@ -55,6 +58,7 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://the.earth.li/~sgtatham/putty/0.85/w64/putty-64bit-0.85-installer.msi",
+          "size": 3846144,
           "sha256": "2213ebacf962b709411d654a40087508a694756bc4e41c5a1c24ad86596b2511"
         }
       ]
@@ -72,6 +76,7 @@
           "arch": "x64",
           "type": "nsis",
           "url": "https://get.videolan.org/vlc/3.0.24/win64/vlc-3.0.24-win64.exe",
+          "size": 46269360,
           "sha256": "d711e1e1fe52052748c39080c7dce63f6b7e4c315efedf1774a3f1957b782ff3"
         }
       ]
@@ -88,6 +93,7 @@
           "arch": "x64",
           "type": "nsis",
           "url": "https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US",
+          "size": 96488024,
           "signer": "Mozilla Corporation"
         }
       ]
@@ -106,6 +112,7 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://github.com/adriandeleon/Editora/releases/download/v0.29.0/Editora-0.29.0-windows-x64.msi",
+          "size": 176771900,
           "sha256": "500b99bcaa1d6533ffced4eb844c2a2451fcf2a234fe479fcaf25ae886f88b47"
         }
       ]
@@ -124,6 +131,7 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://github.com/adriandeleon/Termina/releases/download/v0.17.0/Termina-0.17.0-windows-x64.msi",
+          "size": 70477954,
           "sha256": "804483c810a214d602770f2be48eb79bde81b2ff6a73f9438bbc86aba1b0df01"
         }
       ]
@@ -142,6 +150,7 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://github.com/adriandeleon/torrenta/releases/download/v0.4.1/Torrenta-0.4.1-windows-x64.msi",
+          "size": 55337234,
           "sha256": "10fb0fde2a2adc2ca1361fcb956b092376099ee6f2b116cb1d456f6cc52e3c5f"
         }
       ]
@@ -160,6 +169,7 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://github.com/adriandeleon/Mirada/releases/download/v0.3.0/Mirada-0.3.0-windows-x64.msi",
+          "size": 37851136,
           "sha256": "f600f550cf3a86b84aa862a9e40be81e385161fd1c8a4ad8077c5660169de9b1"
         }
       ]
@@ -178,6 +188,7 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://github.com/adriandeleon/nux/releases/download/v0.6.1/Nux-0.6.1-windows-x64.msi",
+          "size": 35926016,
           "sha256": "c95ce1b2cd5a9edf0bbdeae3e841f399392d852d09e2982916c7c263980d5bc5"
         }
       ]
@@ -196,7 +207,27 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://github.com/adriandeleon/Modula/releases/download/v1.3.0/Modula-1.3.0-windows-x64.msi",
+          "size": 46363664,
           "sha256": "454bc8d28b6e170d27e6d5ad222445a42bb38ece674c2a17ae770287915e0c90"
+        }
+      ]
+    },
+    {
+      "id": "jkit",
+      "name": "jkit",
+      "suite": "Vitrina",
+      "category": "Programming",
+      "description": "The way to get a JDK (20+ vendors), Maven, Gradle or sbt: jkit installs and switches them; installs for the account that runs inicia",
+      "homepage": "https://jkit-project.dev",
+      "version": "0.6.0",
+      "released": "2026-11-27",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://github.com/adriandeleon/jkit/releases/download/v0.6.0/jkit-0.6.0-windows-x64.msi",
+          "size": 11636736,
+          "sha256": "105bbb8b3c7b239c25119cc884dd20c57c24e902f15d0c6045405ebec84008a0"
         }
       ]
     },
@@ -211,12 +242,14 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi",
+          "size": 175624192,
           "signer": "Google LLC"
         },
         {
           "arch": "arm64",
           "type": "msi",
           "url": "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise_arm64.msi",
+          "size": 178262016,
           "signer": "Google LLC"
         }
       ]
@@ -233,6 +266,7 @@
           "arch": "x64",
           "type": "exe",
           "url": "https://aka.ms/vs/17/release/vc_redist.x64.exe",
+          "size": 25635768,
           "signer": "Microsoft Corporation",
           "args": ["/install", "/quiet", "/norestart"]
         },
@@ -240,6 +274,7 @@
           "arch": "arm64",
           "type": "exe",
           "url": "https://aka.ms/vs/17/release/vc_redist.arm64.exe",
+          "size": 11722336,
           "signer": "Microsoft Corporation",
           "args": ["/install", "/quiet", "/norestart"]
         }
@@ -257,6 +292,7 @@
           "arch": "x86",
           "type": "exe",
           "url": "https://aka.ms/vs/17/release/vc_redist.x86.exe",
+          "size": 13953392,
           "signer": "Microsoft Corporation",
           "args": ["/install", "/quiet", "/norestart"]
         }
@@ -273,6 +309,7 @@
           "arch": "x64",
           "type": "exe",
           "url": "https://download.scdn.co/SpotifyFullSetup.exe",
+          "size": 105290384,
           "signer": "Spotify AB",
           "args": ["/silent"]
         }
@@ -292,6 +329,7 @@
           "arch": "x64",
           "type": "exe",
           "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.404/dotnet-sdk-10.0.404-win-x64.exe",
+          "size": 218476784,
           "sha256": "f7fdaf56ff976c3450e6e984ddea3f01790b45ecec848bcfa5dc32f62b6aa93a",
           "signer": "Microsoft Corporation",
           "args": ["/install", "/quiet", "/norestart"]
@@ -300,6 +338,7 @@
           "arch": "arm64",
           "type": "exe",
           "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.404/dotnet-sdk-10.0.404-win-arm64.exe",
+          "size": 206786896,
           "sha256": "ca8aeec89ab6c559b4e13b7732352c8688e63ee2cf780af84639e5ff4090abb3",
           "signer": "Microsoft Corporation",
           "args": ["/install", "/quiet", "/norestart"]
@@ -320,6 +359,7 @@
           "arch": "x64",
           "type": "exe",
           "url": "https://www.python.org/ftp/python/3.15.2/python-3.15.2-amd64.exe",
+          "size": 37694360,
           "sha256": "06e225a228191b0f4d1dcf6905fbb21bf9f6970d13a2ec63137ab9bee76f15aa",
           "signer": "Python Software Foundation",
           "args": ["/quiet", "InstallAllUsers=1", "PrependPath=1", "Include_test=0"]
@@ -328,6 +368,7 @@
           "arch": "arm64",
           "type": "exe",
           "url": "https://www.python.org/ftp/python/3.15.2/python-3.15.2-arm64.exe",
+          "size": 36952392,
           "sha256": "a3957667a6305f0fa4c5ce6c73def927ddcad36190b9e27eb4a04e1a9a153c93",
           "signer": "Python Software Foundation",
           "args": ["/quiet", "InstallAllUsers=1", "PrependPath=1", "Include_test=0"]
@@ -348,6 +389,7 @@
           "arch": "x64",
           "type": "inno",
           "url": "https://github.com/git-for-windows/git/releases/download/v2.56.1.windows.1/Git-2.56.1-64-bit.exe",
+          "size": 66870448,
           "sha256": "c330c72e10b408cc39994bfefdb63542b0d93d21699325c3e0bd874af8a5a559",
           "signer": "Johannes Schindelin"
         }
@@ -366,6 +408,7 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://nodejs.org/dist/v26.13.1/node-v26.13.1-x64.msi",
+          "size": 36564992,
           "sha256": "0398ced8446e119478c724d1aa37c5afd6aa1a76fceab12787eb9714c5ed8b45",
           "signer": "OpenJS Foundation"
         },
@@ -373,6 +416,7 @@
           "arch": "arm64",
           "type": "msi",
           "url": "https://nodejs.org/dist/v26.13.1/node-v26.13.1-arm64.msi",
+          "size": 32632832,
           "sha256": "7ec0190f09d3293afee0a5a5beea82638afb3c6fa41b7af14fdfe7524a865f0f",
           "signer": "OpenJS Foundation"
         }
@@ -390,6 +434,7 @@
           "arch": "x64",
           "type": "exe",
           "url": "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe",
+          "size": 625266608,
           "signer": "Docker Inc",
           "args": ["install", "--quiet", "--accept-license"]
         }
@@ -407,6 +452,7 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://edge.dropboxstatic.com/dbx-releng/client/Dropbox%20280.4.5053%20Enterprise%20Installer.x64.msi",
+          "size": 319328256,
           "sha256": "84bc2e5d8bc63dc7b16ff4999c45cbb1e7d55e691d836f8d9308236608dfdfff",
           "signer": "Dropbox, Inc"
         }
@@ -425,6 +471,7 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://download.documentfoundation.org/libreoffice/stable/26.8.3/win/x86_64/LibreOffice_26.8.3_Win_x86-64.msi",
+          "size": 376311808,
           "sha256": "0e6918c273eabbdbbd800ee0dacbbf130a14c13c2e4cec861b06dd59e015bf94",
           "signer": "The Document Foundation"
         },
@@ -432,6 +479,7 @@
           "arch": "arm64",
           "type": "msi",
           "url": "https://download.documentfoundation.org/libreoffice/stable/26.8.3/win/aarch64/LibreOffice_26.8.3_Win_aarch64.msi",
+          "size": 362065920,
           "sha256": "8ee2ef81ca4103d3eeb06ca9f4ef0b5cbb83357d21d14a449f767bfb29183158",
           "signer": "The Document Foundation"
         }
@@ -450,6 +498,7 @@
           "arch": "x64",
           "type": "exe",
           "url": "https://files.sumatrapdfreader.org/software/sumatrapdf/rel/3.6.1/SumatraPDF-3.6.1-64-install.exe",
+          "size": 11075960,
           "sha256": "1eee71cccd2ea6e94d5bcea54ee2f759844da3e1a0ee2f6045035b1d17b94381",
           "args": ["-s", "-all-users"]
         }
@@ -468,6 +517,7 @@
           "arch": "x64",
           "type": "inno",
           "url": "https://github.com/peazip/PeaZip/releases/download/11.4.0/peazip-11.4.0.WIN64.exe",
+          "size": 11426050,
           "sha256": "7c7e70f4bb64b0f8e6f088c33bb14d7791d9a7c1a762d062f3bfec1bbb8ac9d3"
         }
       ]
@@ -487,6 +537,7 @@
           "arch": "x64",
           "type": "exe",
           "url": "https://download.virtualbox.org/virtualbox/7.2.22/VirtualBox-7.2.22-175245-Win.exe",
+          "size": 178101352,
           "sha256": "afd0ff1656cbe04ed88ce619594ae021419d97cce89fa9bdc443e9a963f1713f",
           "signer": "Oracle America, Inc.",
           "args": ["--silent", "--ignore-reboot"]
@@ -506,6 +557,7 @@
           "arch": "x86",
           "type": "inno",
           "url": "https://sourceforge.net/projects/winscp/files/WinSCP/6.7.1/WinSCP-6.7.1-Setup.exe/download",
+          "size": 13176776,
           "sha256": "95ea85587c30ac6dd0c4b8148e16971f7854a6eee9e68298bf007566ebbe7603",
           "signer": "Martin Přikryl",
           "args": ["/ALLUSERS"]
@@ -526,6 +578,7 @@
           "arch": "x64",
           "type": "msi",
           "url": "https://dl.google.com/go/go1.27.4.windows-amd64.msi",
+          "size": 66203648,
           "sha256": "ae9e383a027ac83c227efd0be3173bf98bccfa5d966a206dff7998f4a3d8449c",
           "signer": "Google LLC"
         },
@@ -533,6 +586,7 @@
           "arch": "arm64",
           "type": "msi",
           "url": "https://dl.google.com/go/go1.27.4.windows-arm64.msi",
+          "size": 63655936,
           "sha256": "1c265543d177c5415c13b77d46a827a86247e6f9854265e04d528f1c7bffd634",
           "signer": "Google LLC"
         }
@@ -542,7 +596,7 @@
       "id": "rust",
       "name": "Rust",
       "category": "Programming",
-      "description": "rustup with the stable Rust toolchain; installs for the account that runs inicia",
+      "description": "rustup with the stable Rust toolchain, which it downloads while installing; installs for the account that runs inicia",
       "homepage": "https://www.rust-lang.org/",
       "version": "1.29.3",
       "released": "2026-11-03",
@@ -553,6 +607,7 @@
           "arch": "x64",
           "type": "exe",
           "url": "https://static.rust-lang.org/rustup/archive/1.29.3/x86_64-pc-windows-msvc/rustup-init.exe",
+          "size": 12839424,
           "sha256": "38027d51d69a5d05493627a0634dbea52d6cd793c8f072d2373d3f4163eec7db",
           "args": ["-y", "--default-toolchain", "stable", "--profile", "default"]
         },
@@ -560,6 +615,7 @@
           "arch": "arm64",
           "type": "exe",
           "url": "https://static.rust-lang.org/rustup/archive/1.29.3/aarch64-pc-windows-msvc/rustup-init.exe",
+          "size": 11361792,
           "sha256": "407e0d72f81d26a01f9d032b8317908cbb2917ba22765474b682b41390792ad9",
           "args": ["-y", "--default-toolchain", "stable", "--profile", "default"]
         }
@@ -578,6 +634,7 @@
           "arch": "x64",
           "type": "exe",
           "url": "https://aka.ms/vs/17/release/vs_buildtools.exe",
+          "size": 4474072,
           "signer": "Microsoft Corporation",
           "args": ["--quiet", "--wait", "--norestart", "--nocache", "--add", "Microsoft.VisualStudio.Workload.VCTools", "--includeRecommended"]
         }
@@ -596,6 +653,7 @@
           "arch": "x64",
           "type": "exe",
           "url": "https://downloads.slack-edge.com/desktop-releases/windows/x64/4.53.292/SlackSetup.exe",
+          "size": 166857792,
           "sha256": "6fe54526bb9548ca2946e9f17f1de0b277c698f1e27745c4415b725d269f2749",
           "signer": "Slack Technologies, LLC",
           "args": ["--silent"]

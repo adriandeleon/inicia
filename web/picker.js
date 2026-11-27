@@ -69,6 +69,20 @@ function fileName(tokens) {
   return "inicia_" + tokens.join("_") + ".exe";
 }
 
+/** The size of the installer most PCs get: x64's, else the first one listed. */
+function sizeOf(app) {
+  const installer = app.installers.find((i) => i.arch === "x64") || app.installers[0];
+  return installer && installer.size ? installer.size : null;
+}
+
+function formatSize(bytes) {
+  const mb = bytes / (1024 * 1024);
+  if (mb < 1) return Math.round(bytes / 1024) + " KB";
+  if (mb < 10) return mb.toFixed(1) + " MB";
+  if (mb < 1000) return Math.round(mb) + " MB";
+  return (mb / 1024).toFixed(1) + " GB";
+}
+
 function nameOf(id) {
   const app = state.apps.find((a) => a.id === id);
   return app ? app.name : id;
@@ -99,6 +113,15 @@ function card(app) {
   }
   if (app.note) extras.push(el("span", { class: "app-extra warn" }, app.note));
 
+  const size = sizeOf(app);
+  if (size) {
+    const width = Math.max(4, Math.round(100 * (Math.log(size) - Math.log(state.minSize))
+      / (Math.log(state.maxSize) - Math.log(state.minSize))));
+    extras.unshift(el("span", { class: "app-size", title: "Download size, next to the other apps'" },
+      el("span", { class: "size-bar", "aria-hidden": "true" }, el("span", { style: "width:" + width + "%" })),
+      formatSize(size) + " download"));
+  }
+
   const label = el("label", { class: "app", for: input.id },
     input,
     inicia.icon(app, state.icons),
@@ -119,6 +142,9 @@ function card(app) {
 
 function render() {
   const form = document.getElementById("apps");
+  const sizes = state.apps.map(sizeOf).filter(Boolean);
+  state.minSize = Math.min(...sizes);
+  state.maxSize = Math.max(...sizes);
   for (const app of state.apps) {
     const cat = app.category || "Other";
     if (!state.categories.has(cat)) state.categories.set(cat, []);

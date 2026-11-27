@@ -321,6 +321,33 @@ button.small { font-size: 0.85rem; padding: 0.35rem 0.75rem; }
 .app-desc { color: var(--muted); font-size: 0.88rem; }
 .app-meta { color: var(--muted); font-size: 0.76rem; font-variant-numeric: tabular-nums; }
 .app-extra { font-size: 0.78rem; color: var(--muted); }
+
+.app-size {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.size-bar {
+  flex: none;
+  width: 3.5rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.size-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--muted);
+}
+
+.app:has(input:checked) .size-bar > span { background: var(--accent); }
 .app-extra.warn { color: var(--warn); }
 
 .app-home {

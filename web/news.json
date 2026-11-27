@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-27",
+    "title": "jkit: how to get a JDK, Maven, Gradle or sbt",
+    "text": "jkit now ships a Windows MSI, so inicia installs it like the other Vitrina apps. inicia doesn't install JDKs, Maven, Gradle or sbt itself: install jkit, then run jkit install jdk@21 (or maven, gradle, sbt) to get them, from 20+ JDK vendors, each download checked. \"All Vitrina apps\" includes it.",
+    "apps": [
+      "jkit"
+    ]
+  },
+  {
+    "date": "2026-11-27",
     "title": "Go, Rust and a C/C++ compiler",
     "text": "Go, Rust (through rustup, with the stable toolchain) and Microsoft's Visual Studio Build Tools, which Rust needs to link programs on Windows, so picking Rust brings them along. Python, Node.js and the .NET SDK move to the new Programming category.",
     "apps": [
