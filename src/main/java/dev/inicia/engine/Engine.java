@@ -74,7 +74,7 @@ public final class Engine {
             progress.phase(app, Progress.Phase.DOWNLOADING);
             progress.line(label + ": downloading from " + installer.url().getHost());
             Downloader.Download download = downloader.fetch(installer.url(), file,
-                    (bytes, total) -> progress.downloaded(app, bytes, total));
+                    (bytes, total) -> progress.downloaded(app, bytes, total > 0 ? total : installer.size().orElse(-1)));
             progress.line("  " + size(download.size()) + " from " + download.from().getHost());
 
             progress.phase(app, Progress.Phase.CHECKING);

@@ -170,6 +170,7 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
               <tr><td><code>sha256</code></td><td>The file's hash. Required unless <code>signer</code> is given.</td></tr>
               <tr><td><code>signer</code></td><td>The signing certificate's name (CN or O).</td></tr>
               <tr><td><code>args</code></td><td>Extra arguments after the type's own silent ones.</td></tr>
+              <tr><td><code>size</code></td><td>The download's size in bytes; shown on the card.</td></tr>
             </tbody>
           </table>
 
@@ -182,6 +183,10 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
             <li><strong>Python and the .NET SDK</strong> install side by side with other versions,
               as their own installers do.</li>
             <li><strong>VirtualBox</strong> brings the Visual C++ runtime with it.</li>
+            <li><strong>Java, Maven, Gradle and sbt</strong> come through <strong>jkit</strong>:
+              install jkit with inicia, then <code>jkit install jdk@21</code> (or
+              <code>maven</code>, <code>gradle</code>, <code>sbt</code>) in a new terminal. jkit
+              offers JDKs from 20+ vendors and switches between them per project.</li>
           </ul>
 
           <h2 id="limits">What inicia doesn't do</h2>

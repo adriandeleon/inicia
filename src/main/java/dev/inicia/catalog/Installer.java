@@ -14,9 +14,11 @@ import java.util.Optional;
  * @param signer the Authenticode signer's name (the certificate's CN or O), checked on Windows; at
  *               least one of sha256 and signer is always present
  * @param args   arguments after the type's own silent ones
+ * @param size   the download's size in bytes, when the catalog gives it: shown on the site, and the
+ *               total for progress when the server doesn't say
  */
 public record Installer(Arch arch, InstallerType type, URI url, Optional<String> sha256,
-                        Optional<String> signer, List<String> args) {
+                        Optional<String> signer, List<String> args, java.util.OptionalLong size) {
 
     public Installer {
         args = List.copyOf(args);

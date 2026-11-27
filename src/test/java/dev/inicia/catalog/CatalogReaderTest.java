@@ -21,7 +21,7 @@ class CatalogReaderTest {
         assertThat(sevenZip.installerFor(Arch.ARM64).orElseThrow().arch()).isEqualTo(Arch.ARM64);
         assertThat(catalog.app("firefox").orElseThrow().version()).isEmpty();
         assertThat(catalog.apps()).filteredOn(a -> a.suite().isPresent()).extracting(App::id)
-                .containsExactly("editora", "termina", "torrenta", "mirada", "nux", "modula");
+                .containsExactly("editora", "termina", "torrenta", "mirada", "nux", "modula", "jkit");
     }
 
     @Test
@@ -87,7 +87,7 @@ class CatalogReaderTest {
                 .containsExactly("vlc", "firefox", "chrome", "nope", "cat-nothing");
         assertThat(Catalog.suiteToken("Vitrina")).isEqualTo("suite-vitrina");
         assertThat(catalog.expand(List.of("git", "suite-vitrina", "editora", "suite-nothing")))
-                .containsExactly("git", "editora", "termina", "torrenta", "mirada", "nux", "modula", "suite-nothing");
+                .containsExactly("git", "editora", "termina", "torrenta", "mirada", "nux", "modula", "jkit", "suite-nothing");
         // every category's selector fits an exe name, and names only its own apps
         for (App app : catalog.apps()) {
             assertThat(catalog.expand(List.of(Catalog.categoryToken(app.category())))).contains(app.id());
@@ -134,6 +134,16 @@ class CatalogReaderTest {
                 .isInstanceOfSatisfying(CatalogException.class, e -> assertThat(e.problems()).containsExactly(
                         "apps[0].requires: \"a\" isn't another app's id",
                         "apps[0].requires: 3 isn't another app's id"));
+    }
+
+    @Test
+    void sizesAreReadAndChecked() throws Exception {
+        assertThat(CatalogReader.builtIn().app("7zip").orElseThrow().installers().getFirst().size()).hasValue(1659704);
+        assertThatThrownBy(() -> CatalogReader.read("t", """
+                { "catalog": 1, "apps": [ { "id": "a", "name": "A", "installers": [
+                  { "arch": "x64", "type": "nsis", "url": "https://e.com/a.exe", "sha256": "%s", "size": -5 } ] } ] }
+                """.formatted(SHA)))
+                .hasMessageContaining("apps[0].installers[0].size: must be the file's size in bytes");
     }
 
     @Test
