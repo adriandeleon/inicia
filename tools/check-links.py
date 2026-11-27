@@ -23,17 +23,33 @@ catalog = json.loads((ROOT / "src/main/resources/dev/inicia/catalog.json").read_
 problems = []
 
 
+ATTEMPTS = 3
+
+
+def curl(args, url):
+    """curl's output; a network or TLS failure is tried again, as inicia's downloader does: a
+    mirror network (LibreOffice's, SourceForge's) sends each try to a mirror of its choosing, and
+    the odd mirror is broken. When every try fails, the error names where it failed."""
+    for attempt in range(1, ATTEMPTS + 1):
+        r = subprocess.run(["curl", "-sL", "--proto-redir", "=https", "--max-time", "90",
+                            "-A", "inicia-link-check", "-w", "\n%{http_code} %{url_effective}", *args, url],
+                           capture_output=True, text=True)
+        if r.returncode in (0, 23):
+            return r.stdout
+        failed_at = r.stdout.strip().splitlines()[-1].split(" ", 1)[-1] if r.stdout.strip() else url
+        if attempt == ATTEMPTS:
+            raise RuntimeError(f"curl exit code {r.returncode} at {failed_at}, {ATTEMPTS} tries"
+                               + (" (60: the server's TLS certificate isn't valid)" if r.returncode == 60 else ""))
+        print(f"  (try {attempt} failed, curl exit code {r.returncode} at {failed_at}; trying again)", flush=True)
+        time.sleep(2)
+
+
 def head(url):
     """(status, final address, size) for a HEAD request following redirects, the way inicia's
     downloader does; a one-byte GET when the server refuses HEAD. curl, because Python's urllib
     waits out its timeout on some of these redirects."""
     for extra in (["-I"], ["-r", "0-0", "-o", "/dev/null", "-D", "-"]):
-        r = subprocess.run(["curl", "-sL", "--proto-redir", "=https", "--max-time", "90",
-                            "-A", "inicia-link-check", "-w", "\n%{http_code} %{url_effective}", *extra, url],
-                           capture_output=True, text=True)
-        if r.returncode not in (0, 23):
-            raise RuntimeError(f"curl exit code {r.returncode}")
-        lines = r.stdout.strip().splitlines()
+        lines = curl(extra, url).strip().splitlines()
         status, final = lines[-1].split(" ", 1)
         status = int(status)
         if status in (403, 405, 501) and extra == ["-I"]:
