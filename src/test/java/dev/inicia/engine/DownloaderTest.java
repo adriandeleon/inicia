@@ -52,4 +52,12 @@ class DownloaderTest {
         assertThat(tries).hasValue(1);
         assertThat(slept).isEmpty();
     }
+
+    @Test
+    void errorsWithoutAMessageAreDescribed() {
+        assertThat(Downloader.describe(new java.net.ConnectException())).isEqualTo("connect exception");
+        assertThat(Downloader.describe(new IOException(new java.nio.channels.ClosedChannelException())))
+                .isEqualTo("java.nio.channels.ClosedChannelException: closed channel exception");
+        assertThat(Downloader.describe(new IOException("HTTP 503 from mirror.example"))).isEqualTo("HTTP 503 from mirror.example");
+    }
 }

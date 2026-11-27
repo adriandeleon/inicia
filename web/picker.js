@@ -126,7 +126,8 @@ function card(app) {
     input,
     inicia.icon(app, state.icons),
     el("span", { class: "app-text" },
-      el("span", { class: "app-name" }, app.name),
+      el("span", { class: "app-title" }, el("span", { class: "app-name" }, app.name),
+        el("span", { class: "app-version" }, app.version || "latest")),
       el("span", { class: "app-desc", id: "desc-" + app.id }, app.description || ""),
       el("span", { class: "app-meta" }, meta),
       ...extras));
@@ -272,6 +273,77 @@ function expand(tokens) {
   return ids;
 }
 
+// --- search, view, and the apps inicia doesn't have ----------------------------------------
+
+const VIEW = "inicia-view";
+let excluded = [];
+
+function matches(app, words) {
+  const text = [app.id, app.name, app.description || "", app.category || "", app.suite || ""].join(" ").toLowerCase();
+  return words.every((w) => text.includes(w));
+}
+
+function filter() {
+  const query = document.getElementById("search").value.trim().toLowerCase();
+  const words = query.split(/\s+/).filter(Boolean);
+  let shown = 0;
+  for (const app of state.apps) {
+    const card = document.getElementById("app-" + app.id).closest(".app");
+    const show = !words.length || matches(app, words);
+    card.hidden = !show;
+    if (show) shown++;
+  }
+  for (const fieldset of document.querySelectorAll(".category")) {
+    fieldset.hidden = ![...fieldset.querySelectorAll(".app")].some((c) => !c.hidden);
+  }
+  const noMatch = document.getElementById("no-match");
+  noMatch.replaceChildren();
+  const missing = words.length ? excluded.filter((x) => words.some((w) => x.name.toLowerCase().includes(w))) : [];
+  for (const x of missing) {
+    noMatch.append(el("p", {}, el("strong", {}, x.name), " isn't in inicia: " + x.reason));
+  }
+  if (words.length && shown === 0 && !missing.length) {
+    const link = el("a", { href: "https://github.com/adriandeleon/inicia/issues/new?labels=app+suggestion&title="
+      + encodeURIComponent("Suggest an app: " + query) }, "suggest it");
+    noMatch.append(el("p", {}, "Nothing matches \u201c" + query + "\u201d. Missing an app? You can ", link, "."));
+  }
+  noMatch.hidden = !noMatch.childElementCount;
+}
+
+function setView(view) {
+  document.getElementById("apps").classList.toggle("compact", view === "compact");
+  document.getElementById("view-cards").setAttribute("aria-pressed", String(view !== "compact"));
+  document.getElementById("view-compact").setAttribute("aria-pressed", String(view === "compact"));
+  try { localStorage.setItem(VIEW, view); } catch { /* storage blocked */ }
+}
+
+async function showLatest() {
+  const list = document.getElementById("latest");
+  let items;
+  try { items = await inicia.json("news.json"); } catch { return; }
+  const byId = new Map(state.apps.map((a) => [a.id, a]));
+  const format = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
+  for (const item of [...items].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5)) {
+    const apps = (item.apps || []).map((id) => byId.get(id)).filter(Boolean);
+    list.append(el("li", {},
+      el("time", { datetime: item.date }, format.format(new Date(item.date + "T00:00:00Z"))),
+      el("a", { href: "news.html" }, item.title),
+      apps.length ? el("span", { class: "latest-apps" }, " · " + apps.slice(0, 4).map((a) => a.name).join(", ")
+        + (apps.length > 4 ? " and " + (apps.length - 4) + " more" : "")) : null));
+  }
+}
+
+function showNext() {
+  const ids = selectedIds();
+  if (!ids.length) return;
+  document.getElementById("next-file").textContent = fileName(selectionTokens());
+  const link = document.getElementById("next-link");
+  link.href = location.href;
+  link.textContent = location.href;
+  const dialog = document.getElementById("next");
+  if (typeof dialog.showModal === "function") dialog.showModal();
+}
+
 async function main() {
   const status = document.getElementById("status");
   try {
@@ -286,8 +358,21 @@ async function main() {
   for (const id of fromLink.length ? fromLink : savedSelection()) {
     if (known.has(id)) state.selected.add(id);
   }
+  try { excluded = await inicia.json("excluded.json"); } catch { excluded = []; }
   status.hidden = true;
   render();
+  document.getElementById("tools").hidden = false;
+  document.getElementById("search").addEventListener("input", filter);
+  document.getElementById("view-cards").addEventListener("click", () => setView("cards"));
+  document.getElementById("view-compact").addEventListener("click", () => setView("compact"));
+  let view = "cards";
+  try { view = localStorage.getItem(VIEW) || "cards"; } catch { /* storage blocked */ }
+  setView(view);
+  document.getElementById("get").addEventListener("click", (e) => {
+    // the download starts by itself; the panel says what to do with it
+    if (e.currentTarget.getAttribute("aria-disabled") !== "true") setTimeout(showNext, 300);
+  });
+  showLatest();
   document.getElementById("copy").addEventListener("click", copyCommand);
   document.getElementById("select-all").addEventListener("click", () => select(state.apps, true));
   document.getElementById("clear-all").addEventListener("click", () => select(state.apps, false));

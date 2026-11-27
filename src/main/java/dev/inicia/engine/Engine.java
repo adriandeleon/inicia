@@ -108,7 +108,7 @@ public final class Engine {
             progress.line("  " + detail + (reboot ? " (restart Windows to finish)" : ""));
             return new Result(app, Status.INSTALLED, detail, reboot);
         } catch (IOException e) {
-            return failed(app, e.getMessage());
+            return failed(app, Downloader.describe(e));
         }
     }
 

@@ -1,0 +1,11 @@
+[
+  { "name": "WhatsApp", "reason": "it's only published through the Microsoft Store, with no installer to download and check." },
+  { "name": "ChatGPT", "reason": "it's only published as a Microsoft Store (MSIX) package, which inicia can't install yet." },
+  { "name": "Microsoft Teams", "reason": "it's only published as an MSIX package, which inicia can't install yet." },
+  { "name": "FileZilla", "reason": "its download links expire and are only handed to web browsers, and its installer offers sponsored extras." },
+  { "name": "Zenmap", "reason": "it comes inside the Nmap installer, which only runs silently in the paid Nmap OEM edition." },
+  { "name": "Nmap", "reason": "only the paid Nmap OEM edition's installer runs silently." },
+  { "name": "Wireshark", "reason": "it needs the Npcap driver, which only installs silently in the paid Npcap OEM edition." },
+  { "name": "CCleaner", "reason": "its installer offers other products along with it." },
+  { "name": "WinRAR", "reason": "it's trial software that keeps asking to be bought." }
+]

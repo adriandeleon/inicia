@@ -97,47 +97,121 @@ final class GuiCommand implements Callable<Integer> {
             }
 
             Path work = Files.createTempDirectory("inicia-");
-            Engine engine = Installation.engine(work, new WindowProgress(ui, steps));
-            Thread answers = new Thread(() -> {
-                try {
-                    for (String a; !(a = ui.next()).equals(WinFormsUi.CLOSED); ) {
-                        if (a.equals("cancel")) {
-                            engine.cancel();
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+            List<Engine.Result> results = run(ui, work, steps);
+            // Retry failed runs the failed apps again, in the same window, as often as asked
+            for (String answer; !(answer = ui.next()).equals(WinFormsUi.CLOSED); ) {
+                if (!answer.equals("retry")) {
+                    continue;
                 }
-            }, "inicia-answers");
-            answers.setDaemon(true);
-            answers.start();
-
-            Installation.Summary summary = Installation.Summary.of(engine.run(steps));
-            boolean kept = !Installation.cleanUp(work, summary);
-            String text = WindowProgress.capitalize(summary.counts()) + "."
-                    + (summary.reboot() ? " Restart Windows to finish installing." : "")
-                    + (kept ? " Downloads and logs are kept in " + work + "." : "");
-            ui.send(WinFormsUi.event("done")
-                    .put("title", summary.failed().isEmpty() ? "Done" : "Finished, with problems")
-                    .put("text", text).put("ok", summary.failed().isEmpty()));
-            ui.waitClosed();
+                List<App> failed = results.stream().filter(r -> r.status() == Engine.Status.FAILED)
+                        .map(Engine.Result::app).toList();
+                List<Step> again = Planner.plan(failed, Platform.installed(), Platform.arch(), force);
+                ui.send(retryEvent(again));
+                List<Engine.Result> retried = run(ui, work, again);
+                results = merge(results, retried);
+            }
+            Installation.Summary summary = Installation.Summary.of(results);
+            Installation.cleanUp(work, summary);
             return summary.failed().isEmpty() ? 0 : 1;
         }
+    }
+
+    /** Runs the steps with the window showing them, then shows how it went; the window stays open. */
+    private static List<Engine.Result> run(WinFormsUi ui, Path work, List<Step> steps) throws InterruptedException {
+        Engine engine = Installation.engine(work, new WindowProgress(ui, steps));
+        Thread answers = new Thread(() -> {
+            // while the engine runs, the window's only answer is cancel; anything else waits
+            try {
+                for (String a; (a = ui.next()) != null; ) {
+                    if (a.equals("cancel")) {
+                        engine.cancel();
+                    } else {
+                        ui.putBack(a);
+                        return;
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "inicia-answers");
+        answers.setDaemon(true);
+        answers.start();
+        List<Engine.Result> results = engine.run(steps);
+        answers.interrupt();
+        answers.join(1000);
+        ui.send(doneEvent(Installation.Summary.of(results), work));
+        return results;
+    }
+
+    private static List<Engine.Result> merge(List<Engine.Result> before, List<Engine.Result> retried) {
+        List<Engine.Result> merged = new ArrayList<>(before);
+        for (Engine.Result r : retried) {
+            merged.replaceAll(old -> old.app().equals(r.app()) ? r : old);
+        }
+        return merged;
+    }
+
+    private static ObjectNode doneEvent(Installation.Summary s, Path work) {
+        List<String> counts = new ArrayList<>();
+        if (s.installed() > 0) {
+            counts.add(s.installed() + " installed");
+        }
+        if (s.skipped() > 0) {
+            counts.add(s.skipped() + " already up to date");
+        }
+        if (!s.failed().isEmpty()) {
+            counts.add(s.failed().size() + " failed");
+        }
+        boolean ok = s.failed().isEmpty();
+        String text = ok
+                ? (s.reboot() ? "Restart Windows to finish installing." : "Everything you picked is installed and up to date.")
+                : "Retry failed tries them again. Show details says what went wrong, and the log folder "
+                + "keeps the downloads and installer logs." + (s.reboot() ? " Restart Windows to finish installing." : "");
+        ObjectNode event = WinFormsUi.event("done")
+                .put("title", (ok ? "Done: " : "Finished: ") + String.join(" · ", counts))
+                .put("text", text).put("ok", ok);
+        if (!ok) {
+            event.put("logs", work.toString());
+        }
+        return event;
+    }
+
+    private static ObjectNode retryEvent(List<Step> steps) {
+        ObjectNode event = WinFormsUi.event("retry")
+                .put("title", "Trying " + steps.size() + (steps.size() == 1 ? " app" : " apps") + " again");
+        ArrayNode ids = event.putArray("ids");
+        steps.forEach(s -> ids.add(s.app().id()));
+        return event;
     }
 
     static Path self() {
         return Path.of(ProcessHandle.current().info().command().orElseThrow());
     }
 
-    private static ObjectNode pickEvent(Catalog cat) {
+    private static ObjectNode pickEvent(Catalog cat) throws java.io.IOException, InterruptedException {
         ObjectNode event = WinFormsUi.event("pick");
         ArrayNode apps = event.putArray("apps");
         Map<String, List<String>> suites = new LinkedHashMap<>();
+        // what's installed already, so the picker can say "Installed" or "Update available"
+        Map<String, Step> state = new java.util.HashMap<>();
+        for (Step s : Planner.plan(cat.apps(), Platform.installed(), Platform.arch(), false)) {
+            state.put(s.app().id(), s);
+        }
         for (App a : cat.apps()) {
             ObjectNode n = apps.addObject().put("id", a.id()).put("name", a.name()).put("category", a.category())
                     .put("description", a.description());
             a.version().ifPresent(v -> n.put("version", v));
             a.note().ifPresent(v -> n.put("note", v));
+            a.installerFor(Platform.arch()).flatMap(i -> i.size().isPresent()
+                    ? java.util.Optional.of(i.size().getAsLong()) : java.util.Optional.empty())
+                    .ifPresent(size -> n.put("size", size));
+            Step step = state.get(a.id());
+            n.put("installed", switch (step.action()) {
+                case UP_TO_DATE, PRESENT -> "Installed";
+                case UPGRADE -> "Update available";
+                case NO_INSTALLER -> "Not for this PC";
+                default -> "";
+            });
             a.suite().ifPresent(s -> {
                 n.put("suite", s);
                 suites.computeIfAbsent(s, k -> new ArrayList<>()).add(a.id());
@@ -157,10 +231,9 @@ final class GuiCommand implements Callable<Integer> {
                         : "Installing " + toRun + (toRun == 1 ? " app" : " apps"));
         ArrayNode apps = event.putArray("apps");
         for (Step s : steps) {
-            String status = s.action().runs() ? "Waiting"
-                    : WindowProgress.capitalize(s.action().label())
-                    + s.installed().filter(v -> !v.isEmpty()).map(v -> " (" + v + ")").orElse("");
-            apps.addObject().put("id", s.app().id()).put("name", InstallCommand.title(s.app())).put("status", status);
+            String status = s.action().runs() ? "Waiting" : WindowProgress.leftAlone(s);
+            apps.addObject().put("id", s.app().id()).put("name", InstallCommand.title(s.app())).put("status", status)
+                    .put("state", s.action().runs() ? "waiting" : "skip");
         }
         return event;
     }

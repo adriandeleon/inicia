@@ -81,9 +81,15 @@ final class WindowProgress implements Progress {
             case SKIPPED -> "skip";
             case FAILED -> "fail";
         };
-        String status = result.status() == Engine.Status.FAILED
-                ? "Failed: " + result.detail()
-                : capitalize(result.detail()) + (result.rebootNeeded() ? " · restart to finish" : "");
+        String status = switch (result.status()) {
+            case FAILED -> "Failed: " + result.detail();
+            // the catalog's version, as the window lists it: Windows' own number for it can differ
+            // (PuTTY 0.85 is 0.85.0.0 there, Python 3.15.2 is 3.15.2150.0); the log has that one
+            case INSTALLED -> (app.version().map(v -> "Installed " + v).orElse(capitalize(result.detail())))
+                    + (result.rebootNeeded() ? " · restart to finish" : "");
+            case SKIPPED -> result.detail().equals("cancelled") ? "Cancelled"
+                    : app.version().map(v -> "Up to date (" + v + ")").orElse("Already installed");
+        };
         app(app, status, state);
         if (running.contains(app)) {
             done.put(app.id(), 1.0);
@@ -99,6 +105,15 @@ final class WindowProgress implements Progress {
         double sum = running.stream().mapToDouble(a -> done.getOrDefault(a.id(), 0.0)).sum();
         int value = running.isEmpty() ? 1000 : (int) Math.round(1000 * sum / running.size());
         ui.send(WinFormsUi.event("overall").put("value", value).put("text", activity));
+    }
+
+    /** The status of an app the plan leaves alone, for its row before anything runs. */
+    static String leftAlone(Step s) {
+        return switch (s.action()) {
+            case UP_TO_DATE -> s.app().version().map(v -> "Up to date (" + v + ")").orElse("Up to date");
+            case PRESENT -> "Already installed";
+            default -> capitalize(s.action().label());
+        };
     }
 
     static String capitalize(String s) {

@@ -7,6 +7,7 @@
   <meta name="description" content="Pick Windows apps and get one installer that sets them all up silently, checked against their publishers' hashes and signatures, with no bundled extras.">
   <script src="theme.js"></script>
   <link rel="stylesheet" href="site.css">
+  <link rel="alternate" type="application/atom+xml" title="inicia news" href="feed.xml">
   <script src="common.js" defer></script>
   <script src="picker.js" defer></script>
 </head>
@@ -36,8 +37,8 @@
         </p>
       </div>
       <figure class="hero-shot">
-        <img src="hero.png" width="960" height="765"
-             alt="inicia's window installing four apps: 7-Zip and PuTTY are installed, SumatraPDF is downloading at 74 percent, PeaZip is waiting, and VLC, Python and Git are already up to date.">
+        <img src="hero.png" width="960" height="727"
+             alt="inicia's window installing two apps: 7-Zip is installed and PuTTY is installing, while VLC, Python, Git and jkit are already up to date.">
         <figcaption>A real screenshot, on Windows 11.</figcaption>
       </figure>
     </div>
@@ -51,10 +52,45 @@
         <button type="button" class="secondary small" id="clear-all" disabled>Clear all</button>
       </div>
     </div>
+    <div class="tools" id="tools" hidden>
+      <label class="search">
+        <span class="visually-hidden">Search apps</span>
+        <input type="search" id="search" placeholder="Search apps, e.g. java, pdf, browser" autocomplete="off">
+      </label>
+      <div class="view-switch" role="group" aria-label="View">
+        <button type="button" class="small" id="view-cards" aria-pressed="true">Cards</button>
+        <button type="button" class="small" id="view-compact" aria-pressed="false">Compact</button>
+      </div>
+    </div>
     <p class="saved" id="saved" hidden>Your picks are saved in this browser for next time.
       <button type="button" class="link-button" id="forget">Forget my picks</button></p>
     <p id="status" class="status" role="status">Loading the catalog…</p>
+    <div id="no-match" class="no-match" hidden></div>
     <form id="apps" class="apps" hidden></form>
+    <p class="suggest">Missing an app? <a id="suggest-link" href="https://github.com/adriandeleon/inicia/issues/new?labels=app+suggestion&amp;title=Suggest+an+app%3A+">Suggest one</a>:
+      apps go in when they have an installer from their publisher that runs silently.</p>
+
+    <section class="home-bands">
+      <div class="band">
+        <h2>inicia will</h2>
+        <ul class="promises">
+          <li>download every app from its publisher, over https only</li>
+          <li>check each download against the publisher's SHA-256 or code signature before running it, and stop if it doesn't match</li>
+          <li>never install toolbars, trials or other extras</li>
+          <li>install silently, with no wizards to click through</li>
+          <li>skip apps that are already up to date, and upgrade older ones</li>
+          <li>install the 64-bit or ARM64 version when there is one</li>
+          <li>never restart your PC: it tells you when an installer needs a restart</li>
+          <li>tell you exactly what it did, and why anything failed</li>
+        </ul>
+        <p><a href="security.html">How inicia keeps your PC safe</a> · Works on Windows 10 and 11, x64 and ARM64.</p>
+      </div>
+      <div class="band">
+        <h2>What's new</h2>
+        <ol class="latest" id="latest"></ol>
+        <p><a href="news.html">All news</a> · <a href="feed.xml">Feed</a></p>
+      </div>
+    </section>
   </main>
 
   <div class="bar" id="bar">
@@ -69,10 +105,26 @@
     <p class="wrap note" id="note" hidden></p>
   </div>
 
+  <dialog id="next" class="next" aria-labelledby="next-title">
+    <h2 id="next-title">Your installer is downloading</h2>
+    <p class="file"><code id="next-file"></code></p>
+    <ol>
+      <li><strong>Run it.</strong> Keep its name: the name says which apps to install.</li>
+      <li><strong>Windows asks for administrator rights,</strong> which installers need. Then inicia's
+        window shows each app as it installs.</li>
+      <li><strong>If SmartScreen says it "protected your PC",</strong> choose <em>More info</em>, then
+        <em>Run anyway</em>: inicia's exe isn't code-signed yet.</li>
+      <li><strong>Keep the file.</strong> Run it again later to update these apps.</li>
+    </ol>
+    <p>Share these picks: <a id="next-link" href="#"></a></p>
+    <form method="dialog"><button class="primary">Done</button></form>
+  </dialog>
+
   <footer class="site-footer">
     <div class="wrap">
       <p>inicia is free software under the MIT license ·
-        <a href="https://github.com/adriandeleon/inicia">Source on GitHub</a>.
+        <a href="https://github.com/adriandeleon/inicia">Source on GitHub</a> ·
+        <a href="security.html">Security</a> · <a href="apps.html">All apps, without JavaScript</a>.
         App names and logos belong to their owners; inicia downloads each app from its publisher.</p>
     </div>
   </footer>

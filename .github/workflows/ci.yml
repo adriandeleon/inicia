@@ -70,44 +70,14 @@ jobs:
     defaults:
       run:
         shell: bash
-    env:
-      # GraalVM Community Edition for JDK 25, the build jkit's releases use
-      GRAALVM_URL: https://github.com/graalvm/graalvm-ce-builds/releases/download/graal-25.5.5.0.3/graalvm-community-jdk-25i5-25.0.5.0.3_windows-x64_bin.zip
-      GRAALVM_SHA256: b02c3b162129fa8cbfa7ebd0fcc1ae6eba2fc736bf3bef8e40e5ace3e9d9a0d6
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Set up GraalVM
-        run: |
-          set -euo pipefail
-          file="$RUNNER_TEMP/graalvm.zip"
-          curl -fsSL --proto '=https' -o "$file" "$GRAALVM_URL"
-          # from stdin: with a Windows path, sha256sum puts a backslash in front of the hash
-          actual=$(sha256sum < "$file" | cut -d' ' -f1)
-          if [ "$actual" != "$GRAALVM_SHA256" ]; then
-            echo "::error::$GRAALVM_URL has SHA-256 $actual, expected $GRAALVM_SHA256"
-            exit 1
-          fi
-          7z x -bso0 -o"$RUNNER_TEMP/graalvm" "$file"
-          home=$(dirname "$(find "$RUNNER_TEMP/graalvm" -maxdepth 2 -name release -type f | head -1)")
-          "$home/bin/native-image.cmd" --version
-          home=$(cygpath -w "$home")
-          echo "GRAALVM_HOME=$home" >> "$GITHUB_ENV"
-          echo "JAVA_HOME=$home" >> "$GITHUB_ENV"
-          echo "$home\\bin" >> "$GITHUB_PATH"
-
-      - name: Cache Maven downloads
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.m2/repository
-          key: maven-native-${{ hashFiles('pom.xml') }}
-          restore-keys: maven-native-
-
       - name: Build inicia.exe
-        run: ./mvnw -B -Pnative package
+        uses: ./.github/actions/build-exe
 
       - name: Check it doesn't need the Visual C++ runtime DLLs
         # the windows-static-vcruntime profile links them in; a fresh Windows doesn't have them

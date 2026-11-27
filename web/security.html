@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security · inicia</title>
+  <meta name="description" content="How inicia checks every download before it runs, what it never does, and how to report a problem.">
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="wordmark" href="./">inicia</a>
+      <nav aria-label="Site">
+        <a href="./">Apps</a>
+        <a href="news.html">News</a>
+        <a href="docs.html">Docs</a>
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to dark theme">Dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap prose">
+      <h1>Security</h1>
+      <p class="lede">inicia runs installers with administrator rights, so it only runs ones it has
+        checked. This page says what it checks, what it never does, and where it still falls short.</p>
+
+      <h2>Every download is checked before it runs</h2>
+      <ul>
+        <li><strong>From the publisher.</strong> Each app's address is the publisher's own download
+          (GitHub releases, the publisher's site or CDN, or an official mirror), recorded in the
+          <a href="https://github.com/adriandeleon/inicia/blob/main/src/main/resources/dev/inicia/catalog.json">catalog</a>.</li>
+        <li><strong>Over https only.</strong> A download that redirects to plain http is refused.</li>
+        <li><strong>SHA-256.</strong> An app pinned to a version has the exact fingerprint of its
+          installer in the catalog, matched against what the publisher lists where they list one.
+          A download that doesn't match is deleted and never runs.</li>
+        <li><strong>Publisher signature.</strong> Where the catalog names a signer, the installer's
+          Authenticode signature must be valid, trusted by Windows, and made by that publisher
+          (Google LLC, Mozilla Corporation, Microsoft Corporation…). Downloads that always fetch the
+          latest release are checked this way, since their file changes with every release.</li>
+      </ul>
+
+      <h2>What inicia never does</h2>
+      <ul>
+        <li>install toolbars, trials or anything you didn't pick: an installer that bundles offers
+          doesn't go in the catalog;</li>
+        <li>run a download it couldn't check;</li>
+        <li>send anything about you or your PC anywhere: it downloads installers, nothing else;</li>
+        <li>restart Windows.</li>
+      </ul>
+
+      <h2>How the catalog is kept honest</h2>
+      <p>Every catalog change is a public pull request on
+        <a href="https://github.com/adriandeleon/inicia">GitHub</a>. CI builds inicia, really installs
+        apps on Windows with it, and a weekly job checks that every installer is still at its address
+        and still the size the catalog says: a changed file would no longer match its SHA-256.</p>
+
+      <h2>Where it falls short, for now</h2>
+      <ul>
+        <li><strong>inicia's own exe isn't code-signed yet,</strong> so Windows SmartScreen warns
+          the first time it runs.</li>
+        <li><strong>The catalog is built into the exe.</strong> An exe downloaded today installs
+          today's versions; download it again for newer ones.</li>
+        <li><strong>Downloads wait in your temporary folder</strong> between the check and the
+          install. Another program running as you could, in principle, swap one there.</li>
+      </ul>
+
+      <h2>Reporting a problem</h2>
+      <p>If you find a security problem in inicia or its catalog, please report it privately through
+        <a href="https://github.com/adriandeleon/inicia/security/advisories/new">GitHub's security advisories</a>
+        rather than in a public issue.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>inicia is free software under the MIT license ·
+        <a href="https://github.com/adriandeleon/inicia">Source on GitHub</a> ·
+        <a href="security.html">Security</a> · <a href="apps.html">All apps, without JavaScript</a>.
+        App names and logos belong to their owners; inicia downloads each app from its publisher.</p>
+    </div>
+  </footer>
+</body>
+</html>
