@@ -25,7 +25,7 @@ final class ListCommand implements Callable<Integer> {
         int idWidth = cat.apps().stream().mapToInt(a -> a.id().length()).max().orElse(0);
         int nameWidth = cat.apps().stream().mapToInt(a -> InstallCommand.title(a).length()).max().orElse(0);
         for (Map.Entry<String, List<App>> e : byCategory.entrySet()) {
-            System.out.println(e.getKey());
+            System.out.println(e.getKey() + "  (" + Catalog.categoryToken(e.getKey()) + ")");
             for (App app : e.getValue()) {
                 String arches = app.installers().stream().map(i -> i.arch().id()).collect(Collectors.joining(" "));
                 System.out.printf("  %-" + idWidth + "s  %-" + nameWidth + "s  %s%n", app.id(), InstallCommand.title(app), arches);

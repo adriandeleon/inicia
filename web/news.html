@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>News · inicia</title>
+  <meta name="description" content="New apps in the inicia catalog.">
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="site.css">
+  <script src="common.js" defer></script>
+  <script src="news.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="wordmark" href="./">inicia</a>
+      <nav aria-label="Site">
+        <a href="./">Apps</a>
+        <a href="news.html" aria-current="page">News</a>
+        <a href="docs.html">Docs</a>
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to dark theme">Dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap">
+      <h1>News</h1>
+      <p class="lede">New apps in the catalog, newest first. Click an app to pick it.</p>
+      <p id="status" class="status" role="status">Loading…</p>
+      <ol id="news" class="news-list" hidden></ol>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>inicia is free software under the MIT license ·
+        <a href="https://github.com/adriandeleon/inicia">Source on GitHub</a>.
+        App names and logos belong to their owners; inicia downloads each app from its publisher.</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -8,6 +8,7 @@
       "description": "File archiver with a high compression ratio",
       "homepage": "https://www.7-zip.org",
       "version": "26.06",
+      "released": "2026-11-07",
       "installers": [
         {
           "arch": "x64",
@@ -30,6 +31,7 @@
       "description": "Source code and text editor",
       "homepage": "https://notepad-plus-plus.org",
       "version": "8.9.9.1",
+      "released": "2026-11-12",
       "installers": [
         {
           "arch": "x64",
@@ -47,6 +49,7 @@
       "description": "SSH and telnet client",
       "homepage": "https://www.chiark.greenend.org.uk/~sgtatham/putty/",
       "version": "0.85",
+      "released": "2026-08-14",
       "installers": [
         {
           "arch": "x64",
@@ -63,6 +66,7 @@
       "description": "Plays most video and audio formats",
       "homepage": "https://www.videolan.org/vlc/",
       "version": "3.0.24",
+      "released": "2026-09-21",
       "installers": [
         {
           "arch": "x64",
@@ -85,6 +89,516 @@
           "type": "nsis",
           "url": "https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US",
           "signer": "Mozilla Corporation"
+        }
+      ]
+    },
+    {
+      "id": "editora",
+      "name": "Editora",
+      "suite": "Vitrina",
+      "category": "Developer tools",
+      "description": "A keyboard-driven programmer's text editor",
+      "homepage": "https://editora-project.dev/",
+      "version": "0.29.0",
+      "released": "2026-11-25",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://github.com/adriandeleon/Editora/releases/download/v0.29.0/Editora-0.29.0-windows-x64.msi",
+          "sha256": "500b99bcaa1d6533ffced4eb844c2a2451fcf2a234fe479fcaf25ae886f88b47"
+        }
+      ]
+    },
+    {
+      "id": "termina",
+      "name": "Termina",
+      "suite": "Vitrina",
+      "category": "Developer tools",
+      "description": "A cross-platform terminal emulator",
+      "homepage": "https://termina-project.dev/",
+      "version": "0.17.0",
+      "released": "2026-11-26",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://github.com/adriandeleon/Termina/releases/download/v0.17.0/Termina-0.17.0-windows-x64.msi",
+          "sha256": "804483c810a214d602770f2be48eb79bde81b2ff6a73f9438bbc86aba1b0df01"
+        }
+      ]
+    },
+    {
+      "id": "torrenta",
+      "name": "Torrenta",
+      "suite": "Vitrina",
+      "category": "File sharing",
+      "description": "A keyboard-first BitTorrent client",
+      "homepage": "https://torrenta-project.dev",
+      "version": "0.4.1",
+      "released": "2026-10-29",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://github.com/adriandeleon/torrenta/releases/download/v0.4.1/Torrenta-0.4.1-windows-x64.msi",
+          "sha256": "10fb0fde2a2adc2ca1361fcb956b092376099ee6f2b116cb1d456f6cc52e3c5f"
+        }
+      ]
+    },
+    {
+      "id": "mirada",
+      "name": "Mirada",
+      "suite": "Vitrina",
+      "category": "Media",
+      "description": "A fast, folder-oriented image viewer",
+      "homepage": "https://github.com/adriandeleon/Mirada",
+      "version": "0.3.0",
+      "released": "2026-11-06",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://github.com/adriandeleon/Mirada/releases/download/v0.3.0/Mirada-0.3.0-windows-x64.msi",
+          "sha256": "f600f550cf3a86b84aa862a9e40be81e385161fd1c8a4ad8077c5660169de9b1"
+        }
+      ]
+    },
+    {
+      "id": "nux",
+      "name": "Nux",
+      "suite": "Vitrina",
+      "category": "Utilities",
+      "description": "A client for Network UPS Tools (NUT)",
+      "homepage": "https://github.com/adriandeleon/nux",
+      "version": "0.6.1",
+      "released": "2026-10-25",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://github.com/adriandeleon/nux/releases/download/v0.6.1/Nux-0.6.1-windows-x64.msi",
+          "sha256": "c95ce1b2cd5a9edf0bbdeae3e841f399392d852d09e2982916c7c263980d5bc5"
+        }
+      ]
+    },
+    {
+      "id": "modula",
+      "name": "Modula",
+      "suite": "Vitrina",
+      "category": "Media",
+      "description": "AM/FM radio with an RTL-SDR dongle: stereo, RDS, presets and recording",
+      "homepage": "https://github.com/adriandeleon/Modula",
+      "version": "1.3.0",
+      "released": "2026-10-24",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://github.com/adriandeleon/Modula/releases/download/v1.3.0/Modula-1.3.0-windows-x64.msi",
+          "sha256": "454bc8d28b6e170d27e6d5ad222445a42bb38ece674c2a17ae770287915e0c90"
+        }
+      ]
+    },
+    {
+      "id": "chrome",
+      "name": "Google Chrome",
+      "category": "Web browsers",
+      "description": "Google's web browser; always the latest release",
+      "homepage": "https://www.google.com/chrome/",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi",
+          "signer": "Google LLC"
+        },
+        {
+          "arch": "arm64",
+          "type": "msi",
+          "url": "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise_arm64.msi",
+          "signer": "Google LLC"
+        }
+      ]
+    },
+    {
+      "id": "vcredist",
+      "name": "Visual C++ Redistributable (x64)",
+      "category": "Runtimes",
+      "description": "The Visual C++ 2015 and later runtime many 64-bit programs need; latest release",
+      "homepage": "https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist",
+      "detect": { "displayName": "^Microsoft Visual C\\+\\+ (2015-20\\d\\d |v14 )Redistributable \\((x64|ARM64)\\)" },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "exe",
+          "url": "https://aka.ms/vs/17/release/vc_redist.x64.exe",
+          "signer": "Microsoft Corporation",
+          "args": ["/install", "/quiet", "/norestart"]
+        },
+        {
+          "arch": "arm64",
+          "type": "exe",
+          "url": "https://aka.ms/vs/17/release/vc_redist.arm64.exe",
+          "signer": "Microsoft Corporation",
+          "args": ["/install", "/quiet", "/norestart"]
+        }
+      ]
+    },
+    {
+      "id": "vcredist-x86",
+      "name": "Visual C++ Redistributable (x86)",
+      "category": "Runtimes",
+      "description": "The same runtime for 32-bit programs; latest release",
+      "homepage": "https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist",
+      "detect": { "displayName": "^Microsoft Visual C\\+\\+ (2015-20\\d\\d |v14 )Redistributable \\(x86\\)" },
+      "installers": [
+        {
+          "arch": "x86",
+          "type": "exe",
+          "url": "https://aka.ms/vs/17/release/vc_redist.x86.exe",
+          "signer": "Microsoft Corporation",
+          "args": ["/install", "/quiet", "/norestart"]
+        }
+      ]
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "category": "Media",
+      "description": "Music and podcast streaming; always the latest release",
+      "homepage": "https://www.spotify.com/download/windows/",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "exe",
+          "url": "https://download.scdn.co/SpotifyFullSetup.exe",
+          "signer": "Spotify AB",
+          "args": ["/silent"]
+        }
+      ]
+    },
+    {
+      "id": "dotnet-sdk",
+      "name": ".NET SDK",
+      "category": "Programming",
+      "description": "Builds and runs .NET apps; the long-term support release",
+      "homepage": "https://dotnet.microsoft.com/",
+      "version": "10.0.404",
+      "released": "2026-11-10",
+      "detect": { "displayName": "(?i)^Microsoft \\.NET SDK 10\\.0\\.404 \\((x64|arm64)\\)" },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "exe",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.404/dotnet-sdk-10.0.404-win-x64.exe",
+          "sha256": "f7fdaf56ff976c3450e6e984ddea3f01790b45ecec848bcfa5dc32f62b6aa93a",
+          "signer": "Microsoft Corporation",
+          "args": ["/install", "/quiet", "/norestart"]
+        },
+        {
+          "arch": "arm64",
+          "type": "exe",
+          "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.404/dotnet-sdk-10.0.404-win-arm64.exe",
+          "sha256": "ca8aeec89ab6c559b4e13b7732352c8688e63ee2cf780af84639e5ff4090abb3",
+          "signer": "Microsoft Corporation",
+          "args": ["/install", "/quiet", "/norestart"]
+        }
+      ]
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "category": "Programming",
+      "description": "The Python language, for all users, on the PATH",
+      "homepage": "https://www.python.org/",
+      "version": "3.15.2",
+      "released": "2026-10-26",
+      "detect": { "displayName": "^Python 3\\.15\\.2 \\((64-bit|ARM64)\\)" },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "exe",
+          "url": "https://www.python.org/ftp/python/3.15.2/python-3.15.2-amd64.exe",
+          "sha256": "06e225a228191b0f4d1dcf6905fbb21bf9f6970d13a2ec63137ab9bee76f15aa",
+          "signer": "Python Software Foundation",
+          "args": ["/quiet", "InstallAllUsers=1", "PrependPath=1", "Include_test=0"]
+        },
+        {
+          "arch": "arm64",
+          "type": "exe",
+          "url": "https://www.python.org/ftp/python/3.15.2/python-3.15.2-arm64.exe",
+          "sha256": "a3957667a6305f0fa4c5ce6c73def927ddcad36190b9e27eb4a04e1a9a153c93",
+          "signer": "Python Software Foundation",
+          "args": ["/quiet", "InstallAllUsers=1", "PrependPath=1", "Include_test=0"]
+        }
+      ]
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "category": "Developer tools",
+      "description": "Git for Windows, with Git Bash",
+      "homepage": "https://gitforwindows.org/",
+      "version": "2.56.1",
+      "released": "2026-11-10",
+      "detect": { "displayName": "^Git$" },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "inno",
+          "url": "https://github.com/git-for-windows/git/releases/download/v2.56.1.windows.1/Git-2.56.1-64-bit.exe",
+          "sha256": "c330c72e10b408cc39994bfefdb63542b0d93d21699325c3e0bd874af8a5a559",
+          "signer": "Johannes Schindelin"
+        }
+      ]
+    },
+    {
+      "id": "nodejs",
+      "name": "Node.js",
+      "category": "Programming",
+      "description": "JavaScript runtime, with npm; the long-term support release",
+      "homepage": "https://nodejs.org/",
+      "version": "26.13.1",
+      "released": "2026-11-10",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://nodejs.org/dist/v26.13.1/node-v26.13.1-x64.msi",
+          "sha256": "0398ced8446e119478c724d1aa37c5afd6aa1a76fceab12787eb9714c5ed8b45",
+          "signer": "OpenJS Foundation"
+        },
+        {
+          "arch": "arm64",
+          "type": "msi",
+          "url": "https://nodejs.org/dist/v26.13.1/node-v26.13.1-arm64.msi",
+          "sha256": "7ec0190f09d3293afee0a5a5beea82638afb3c6fa41b7af14fdfe7524a865f0f",
+          "signer": "OpenJS Foundation"
+        }
+      ]
+    },
+    {
+      "id": "docker",
+      "name": "Docker Desktop",
+      "category": "Developer tools",
+      "description": "Containers on Windows, through WSL 2; always the latest release",
+      "homepage": "https://www.docker.com/products/docker-desktop/",
+      "note": "Installing accepts the Docker Subscription Service Agreement: larger companies need a paid plan.",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "exe",
+          "url": "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe",
+          "signer": "Docker Inc",
+          "args": ["install", "--quiet", "--accept-license"]
+        }
+      ]
+    },
+    {
+      "id": "dropbox",
+      "name": "Dropbox",
+      "category": "Online storage",
+      "description": "File sync and sharing",
+      "homepage": "https://www.dropbox.com/desktop",
+      "version": "280.4.5053",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://edge.dropboxstatic.com/dbx-releng/client/Dropbox%20280.4.5053%20Enterprise%20Installer.x64.msi",
+          "sha256": "84bc2e5d8bc63dc7b16ff4999c45cbb1e7d55e691d836f8d9308236608dfdfff",
+          "signer": "Dropbox, Inc"
+        }
+      ]
+    },
+    {
+      "id": "libreoffice",
+      "name": "LibreOffice",
+      "category": "Documents",
+      "description": "Office suite: documents, spreadsheets, presentations",
+      "homepage": "https://www.libreoffice.org/",
+      "version": "26.8.3",
+      "released": "2026-11-11",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://download.documentfoundation.org/libreoffice/stable/26.8.3/win/x86_64/LibreOffice_26.8.3_Win_x86-64.msi",
+          "sha256": "0e6918c273eabbdbbd800ee0dacbbf130a14c13c2e4cec861b06dd59e015bf94",
+          "signer": "The Document Foundation"
+        },
+        {
+          "arch": "arm64",
+          "type": "msi",
+          "url": "https://download.documentfoundation.org/libreoffice/stable/26.8.3/win/aarch64/LibreOffice_26.8.3_Win_aarch64.msi",
+          "sha256": "8ee2ef81ca4103d3eeb06ca9f4ef0b5cbb83357d21d14a449f767bfb29183158",
+          "signer": "The Document Foundation"
+        }
+      ]
+    },
+    {
+      "id": "sumatrapdf",
+      "name": "SumatraPDF",
+      "category": "Documents",
+      "description": "Small, fast reader for PDF, EPUB and comic books",
+      "homepage": "https://www.sumatrapdfreader.org/",
+      "version": "3.6.1",
+      "released": "2026-04-06",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "exe",
+          "url": "https://files.sumatrapdfreader.org/software/sumatrapdf/rel/3.6.1/SumatraPDF-3.6.1-64-install.exe",
+          "sha256": "1eee71cccd2ea6e94d5bcea54ee2f759844da3e1a0ee2f6045035b1d17b94381",
+          "args": ["-s", "-all-users"]
+        }
+      ]
+    },
+    {
+      "id": "peazip",
+      "name": "PeaZip",
+      "category": "Utilities",
+      "description": "Archive manager for 200+ formats",
+      "homepage": "https://peazip.github.io/",
+      "version": "11.4.0",
+      "released": "2026-10-17",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "inno",
+          "url": "https://github.com/peazip/PeaZip/releases/download/11.4.0/peazip-11.4.0.WIN64.exe",
+          "sha256": "7c7e70f4bb64b0f8e6f088c33bb14d7791d9a7c1a762d062f3bfec1bbb8ac9d3"
+        }
+      ]
+    },
+    {
+      "id": "virtualbox",
+      "name": "VirtualBox",
+      "category": "Virtualization",
+      "description": "Runs other operating systems in virtual machines",
+      "homepage": "https://www.virtualbox.org/",
+      "version": "7.2.22",
+      "released": "2026-10-20",
+      "requires": ["vcredist"],
+      "detect": { "displayName": "^Oracle (VM )?VirtualBox\\b" },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "exe",
+          "url": "https://download.virtualbox.org/virtualbox/7.2.22/VirtualBox-7.2.22-175245-Win.exe",
+          "sha256": "afd0ff1656cbe04ed88ce619594ae021419d97cce89fa9bdc443e9a963f1713f",
+          "signer": "Oracle America, Inc.",
+          "args": ["--silent", "--ignore-reboot"]
+        }
+      ]
+    },
+    {
+      "id": "winscp",
+      "name": "WinSCP",
+      "category": "Developer tools",
+      "description": "SFTP, FTP, S3 and SCP file transfer",
+      "homepage": "https://winscp.net/",
+      "version": "6.7.1",
+      "released": "2026-11-11",
+      "installers": [
+        {
+          "arch": "x86",
+          "type": "inno",
+          "url": "https://sourceforge.net/projects/winscp/files/WinSCP/6.7.1/WinSCP-6.7.1-Setup.exe/download",
+          "sha256": "95ea85587c30ac6dd0c4b8148e16971f7854a6eee9e68298bf007566ebbe7603",
+          "signer": "Martin Přikryl",
+          "args": ["/ALLUSERS"]
+        }
+      ]
+    },
+    {
+      "id": "go",
+      "name": "Go",
+      "category": "Programming",
+      "description": "The Go language and tools",
+      "homepage": "https://go.dev/",
+      "version": "1.27.4",
+      "released": "2026-11-10",
+      "detect": { "displayName": "^Go Programming Language\\b" },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://dl.google.com/go/go1.27.4.windows-amd64.msi",
+          "sha256": "ae9e383a027ac83c227efd0be3173bf98bccfa5d966a206dff7998f4a3d8449c",
+          "signer": "Google LLC"
+        },
+        {
+          "arch": "arm64",
+          "type": "msi",
+          "url": "https://dl.google.com/go/go1.27.4.windows-arm64.msi",
+          "sha256": "1c265543d177c5415c13b77d46a827a86247e6f9854265e04d528f1c7bffd634",
+          "signer": "Google LLC"
+        }
+      ]
+    },
+    {
+      "id": "rust",
+      "name": "Rust",
+      "category": "Programming",
+      "description": "rustup with the stable Rust toolchain; installs for the account that runs inicia",
+      "homepage": "https://www.rust-lang.org/",
+      "version": "1.29.3",
+      "released": "2026-11-03",
+      "requires": ["vs-buildtools"],
+      "detect": { "displayName": "^Rustup\\b" },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "exe",
+          "url": "https://static.rust-lang.org/rustup/archive/1.29.3/x86_64-pc-windows-msvc/rustup-init.exe",
+          "sha256": "38027d51d69a5d05493627a0634dbea52d6cd793c8f072d2373d3f4163eec7db",
+          "args": ["-y", "--default-toolchain", "stable", "--profile", "default"]
+        },
+        {
+          "arch": "arm64",
+          "type": "exe",
+          "url": "https://static.rust-lang.org/rustup/archive/1.29.3/aarch64-pc-windows-msvc/rustup-init.exe",
+          "sha256": "407e0d72f81d26a01f9d032b8317908cbb2917ba22765474b682b41390792ad9",
+          "args": ["-y", "--default-toolchain", "stable", "--profile", "default"]
+        }
+      ]
+    },
+    {
+      "id": "vs-buildtools",
+      "name": "Visual Studio Build Tools",
+      "category": "Programming",
+      "description": "Microsoft's C and C++ compiler (MSVC) and Windows SDK; latest release",
+      "homepage": "https://visualstudio.microsoft.com/visual-cpp-build-tools/",
+      "note": "Installing accepts the Visual Studio Build Tools license, and downloads about 6 GB.",
+      "detect": { "displayName": "^Visual Studio Build Tools 20\\d\\d\\b" },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "exe",
+          "url": "https://aka.ms/vs/17/release/vs_buildtools.exe",
+          "signer": "Microsoft Corporation",
+          "args": ["--quiet", "--wait", "--norestart", "--nocache", "--add", "Microsoft.VisualStudio.Workload.VCTools", "--includeRecommended"]
+        }
+      ]
+    },
+    {
+      "id": "slack",
+      "name": "Slack",
+      "category": "Messaging",
+      "description": "Team chat; installs for the account that runs inicia",
+      "homepage": "https://slack.com/downloads/windows",
+      "version": "4.53.292",
+      "released": "2026-11-13",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "exe",
+          "url": "https://downloads.slack-edge.com/desktop-releases/windows/x64/4.53.292/SlackSetup.exe",
+          "sha256": "6fe54526bb9548ca2946e9f17f1de0b277c698f1e27745c4415b725d269f2749",
+          "signer": "Slack Technologies, LLC",
+          "args": ["--silent"]
         }
       ]
     }

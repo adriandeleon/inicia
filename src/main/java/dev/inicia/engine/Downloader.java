@@ -25,6 +25,11 @@ public class Downloader {
     public record Download(Path file, String sha256, long size, URI from) {
     }
 
+    /** Bytes so far, and the total when the server said (else -1). */
+    public interface Listener {
+        void progress(long bytes, long total);
+    }
+
     private final HttpClient client;
     private final String userAgent;
 
@@ -37,6 +42,10 @@ public class Downloader {
     }
 
     public Download fetch(URI url, Path target) throws IOException, InterruptedException {
+        return fetch(url, target, (bytes, total) -> { });
+    }
+
+    public Download fetch(URI url, Path target, Listener listener) throws IOException, InterruptedException {
         if (!"https".equalsIgnoreCase(url.getScheme())) {
             throw new IOException("refusing to download over " + url.getScheme() + ": " + url);
         }
@@ -54,6 +63,7 @@ public class Downloader {
             if (!"https".equalsIgnoreCase(from.getScheme())) {
                 throw new IOException("the download was redirected off https, to " + from);
             }
+            long total = response.headers().firstValueAsLong("Content-Length").orElse(-1);
             MessageDigest sha = sha256();
             Path part = target.resolveSibling(target.getFileName() + ".part");
             long size = 0;
@@ -63,6 +73,7 @@ public class Downloader {
                     sha.update(buf, 0, n);
                     out.write(buf, 0, n);
                     size += n;
+                    listener.progress(size, total);
                 }
             }
             Files.move(part, target, StandardCopyOption.REPLACE_EXISTING);

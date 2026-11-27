@@ -18,6 +18,9 @@ class SelectionTest {
         assertThat(Selection.fromFileName("inicia_7zip_vlc (1).exe")).containsExactly("7zip", "vlc");
         assertThat(Selection.fromFileName("Inicia_7zip_VLC(2).EXE")).containsExactly("7zip", "vlc");
         assertThat(Selection.fromFileName("inicia_7zip_7zip.exe")).containsExactly("7zip");
+        assertThat(Selection.fromFileName("inicia_all.exe")).containsExactly("all");
+        assertThat(Selection.fromFileName("inicia_cat-developer-tools_vlc (1).exe"))
+                .containsExactly("cat-developer-tools", "vlc");
     }
 
     @Test

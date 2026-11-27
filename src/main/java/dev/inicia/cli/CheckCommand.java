@@ -21,6 +21,14 @@ final class CheckCommand implements Callable<Integer> {
         for (String source : sources) {
             try {
                 Catalog catalog = CatalogOptions.read(source);
+                // requirements may name built-in apps, so they're checked against both together
+                List<String> missing = dev.inicia.catalog.CatalogReader.builtIn().with(catalog).missingRequirements();
+                if (!missing.isEmpty()) {
+                    bad++;
+                    System.out.println(source + ": " + missing.size() + " problem" + (missing.size() == 1 ? "" : "s"));
+                    missing.forEach(p -> System.out.println("  " + p));
+                    continue;
+                }
                 System.out.println(source + ": ok, " + catalog.apps().size() + " apps");
             } catch (CatalogException e) {
                 bad++;

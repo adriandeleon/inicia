@@ -5,18 +5,35 @@ catalog's SHA-256 or its publisher's code signature, with no toolbars or other b
 Apps already at the catalog's version are left alone; older ones are upgraded. One native exe,
 built with GraalVM; nothing to install first.
 
+Double-click a downloaded `inicia_<id>_<id>.exe` and it opens its window: a progress bar for
+the whole run, each app's status, and the details on demand. A plain `inicia.exe` opens as a
+picker. The window is Windows Forms, run by the Windows PowerShell every Windows 10 and 11 PC
+has, so inicia stays one exe with nothing beside it.
+
+The command line is for administrators and scripts:
+
 ```powershell
 inicia list                              # what the catalog has
 inicia install 7zip vlc notepad-plus-plus
+inicia install cat-media                 # a whole category; inicia list shows their names
+inicia install suite-vitrina             # every app of a suite
+inicia install all                       # the whole catalog
 inicia install -f my-apps.txt            # ids from a file, # for comments
 inicia install 7zip --dry-run            # what it would do
+inicia install all --quiet --log C:\logs\inicia.log   # no output; exit code 0 when all went well
 inicia status                            # catalog apps installed here, and which are out of date
+inicia_7zip_vlc.exe --silent             # a downloaded exe's apps, with no window and no output
+inicia_7zip_vlc.exe --cli                # the same, in the console
 ```
 
+Exit codes: 0 all went well, 1 an app failed, 2 nothing to do with what was asked, 3 no
+administrator rights.
+
 Renamed `inicia_<id>_<id>.exe` (for example `inicia_7zip_vlc.exe`), the exe installs those
-apps when double-clicked: that's what the picker page hands out. A browser's ` (1)` is ignored.
-Installing needs administrator rights; inicia asks Windows for them (the UAC prompt) and carries
-on in an administrator window.
+apps when double-clicked: that's what the picker page hands out. A whole category goes in as
+`cat-<category>`, a suite as `suite-<suite>` and the whole catalog as `all` (`inicia_all.exe`),
+which keeps the name short. A browser's ` (1)` is ignored. Installing needs administrator
+rights: inicia asks Windows for them (the UAC prompt) before its window shows the installs.
 
 ## Your own installers
 
@@ -51,9 +68,13 @@ inicia install my-tool --catalog my-catalog.json
 
 | Field | |
 | --- | --- |
-| `id` | lowercase letters, digits, hyphens; used on the command line and in exe names |
+| `id` | lowercase letters, digits, hyphens; used on the command line and in exe names. `all`, `cat-…` and `suite-…` are taken |
 | `version` | what the installers install. Leave it out for a "latest" URL: an installed copy is then left alone |
+| `released` | when the publisher released that version, `YYYY-MM-DD`; shown on the page |
 | `detect.displayName` | a regular expression for the name in Settings > Apps. Default: starts with `name` |
+| `requires` | ids of apps installed first (VirtualBox requires `vcredist`) |
+| `note` | something to know before installing, such as a license it accepts; shown on the page and in the plan |
+| `suite` | the family of apps it belongs to (`Vitrina`); the page shows "Part of the Vitrina Suite", and `suite-vitrina` selects them all |
 | `arch` | `x64`, `x86` or `arm64`. ARM64 machines fall back to x64, then x86 |
 | `type` | `msi` (msiexec `/qn /norestart`), `inno` (`/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-`), `nsis` (`/S`), or `exe` with your own `args` |
 | `sha256` | the file's hash. Required unless `signer` is given |
@@ -62,20 +83,28 @@ inicia install my-tool --catalog my-catalog.json
 
 Every `url` must be https, and redirects are never followed to plain http.
 
-## The picker page
+## The website
 
-`web/` is a static page: tick apps, and it offers `inicia.exe` under the name
-`inicia_<ids>.exe` (the link's `download` attribute), so one file on any static host serves every
-selection. It also gives the `inicia install …` command and an `apps.txt`, and keeps the
-selection in the address (`#7zip,vlc`) for sharing. The page and the exe must be on the same
-origin, or browsers ignore the download name.
+`web/` is a static site, light by default with a dark theme to switch to:
+
+- `index.html`: the picker. Tick apps, and it offers `inicia.exe` under the name
+  `inicia_<ids>.exe` (the link's `download` attribute), so one file on any static host serves
+  every selection. It also gives the `inicia install …` command and an `apps.txt`, and keeps the
+  selection in the address (`#7zip,vlc`) for sharing. The page and the exe must be on the same
+  origin, or browsers ignore the download name.
+- `news.html`: new apps, from `news.json`. Add an entry there when apps are added.
+- `docs.html`: how inicia works, for the people who use it.
+- `hero.png`: a real screenshot of inicia's window, for the front page.
+- `icons/<id>.svg` or `.png`: one per app. `web/fetch-icons.py` fetches missing ones from each
+  app's homepage; look at what it gets, and add the ones it can't get right by hand.
 
 ```bash
-web/assemble.sh path/to/inicia.exe   # target/web: page, catalog.json, inicia.exe; upload it as is
+web/assemble.sh path/to/inicia.exe   # target/web: pages, catalog.json, icons, inicia.exe; upload it as is
 ```
 
-The page lists the built-in catalog, so apps of your own that people should pick there go into
-`src/main/resources/dev/inicia/catalog.json`, and the exe is rebuilt.
+The site lists the built-in catalog, so apps of your own that people should pick there go into
+`src/main/resources/dev/inicia/catalog.json`, and the exe is rebuilt. App names and logos belong
+to their owners.
 
 ## Building
 
@@ -97,5 +126,6 @@ The exe has to be built on Windows: native-image can't cross-compile. With Graal
 - Catalog signing: a remote `--catalog` is trusted as far as its https host is.
 - Downloads go to the user's temp folder, which unelevated programs of the same user can write
   to between the check and the run; they should go to a folder only administrators can write.
-- An embedded UAC manifest and an icon for the exe.
+- An icon for the exe. A double-click also shows a console window for a moment, because inicia is
+  a console program that starts its window from a hidden copy of itself.
 - Uninstall, and keeping the catalog's versions current.
