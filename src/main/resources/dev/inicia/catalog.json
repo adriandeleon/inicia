@@ -1,0 +1,92 @@
+{
+  "catalog": 1,
+  "apps": [
+    {
+      "id": "7zip",
+      "name": "7-Zip",
+      "category": "Utilities",
+      "description": "File archiver with a high compression ratio",
+      "homepage": "https://www.7-zip.org",
+      "version": "26.06",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "nsis",
+          "url": "https://github.com/ip7z/7zip/releases/download/26.06/7z2606-x64.exe",
+          "sha256": "9b697f65ecc2d9b0152f5ee96d72dde522a7827690349d9307935dacf40f42ec"
+        },
+        {
+          "arch": "arm64",
+          "type": "nsis",
+          "url": "https://github.com/ip7z/7zip/releases/download/26.06/7z2606-arm64.exe",
+          "sha256": "036a00d478ef81f4b4b85fb37b0f934d558341f3f51aa7d36d2a26454740e625"
+        }
+      ]
+    },
+    {
+      "id": "notepad-plus-plus",
+      "name": "Notepad++",
+      "category": "Developer tools",
+      "description": "Source code and text editor",
+      "homepage": "https://notepad-plus-plus.org",
+      "version": "8.9.9.1",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "nsis",
+          "url": "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.9.9.1/npp.8.9.9.1.Installer.x64.exe",
+          "sha256": "ce3267f5c4e7e42f847e00f4b20234da6150647203033cdde34a69593efc3152",
+          "signer": "NOTEPAD++"
+        }
+      ]
+    },
+    {
+      "id": "putty",
+      "name": "PuTTY",
+      "category": "Developer tools",
+      "description": "SSH and telnet client",
+      "homepage": "https://www.chiark.greenend.org.uk/~sgtatham/putty/",
+      "version": "0.85",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://the.earth.li/~sgtatham/putty/0.85/w64/putty-64bit-0.85-installer.msi",
+          "sha256": "2213ebacf962b709411d654a40087508a694756bc4e41c5a1c24ad86596b2511"
+        }
+      ]
+    },
+    {
+      "id": "vlc",
+      "name": "VLC media player",
+      "category": "Media",
+      "description": "Plays most video and audio formats",
+      "homepage": "https://www.videolan.org/vlc/",
+      "version": "3.0.24",
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "nsis",
+          "url": "https://get.videolan.org/vlc/3.0.24/win64/vlc-3.0.24-win64.exe",
+          "sha256": "d711e1e1fe52052748c39080c7dce63f6b7e4c315efedf1774a3f1957b782ff3"
+        }
+      ]
+    },
+    {
+      "id": "firefox",
+      "name": "Firefox",
+      "category": "Web browsers",
+      "description": "Mozilla's web browser; always the latest release",
+      "homepage": "https://www.mozilla.org/firefox/",
+      "detect": { "displayName": "^Mozilla Firefox\\b" },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "nsis",
+          "url": "https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US",
+          "signer": "Mozilla Corporation"
+        }
+      ]
+    }
+  ]
+}
