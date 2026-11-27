@@ -14,6 +14,9 @@ on:
   pull_request:
   push:
     branches: [main]
+  # catalog-updates.yml starts it on the branch of the pull request it opens: a pull request opened
+  # with a workflow's token doesn't start workflows by itself
+  workflow_dispatch:
 
 permissions:
   contents: read

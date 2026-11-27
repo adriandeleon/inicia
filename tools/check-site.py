@@ -4,6 +4,7 @@
     tools/check-site.py
 
 - every catalog app has an icon in web/icons (an .svg or a .png), and a license
+- every pinned app has a version source in tools/sources.json, and every source an app
 - every icon belongs to an app in the catalog
 - every app named in web/news.json is in the catalog, and every app in the catalog is in some
   news entry (so the News page tells about every app)
@@ -27,6 +28,14 @@ for app_id in ids:
         problems.append(f"{app_id}: no icon in web/icons (web/fetch-icons.py {app_id}, then look at it)")
 for icon in sorted(icons - set(ids)):
     problems.append(f"web/icons/{icon}: no app with that id")
+
+sources = json.loads((ROOT / "tools/sources.json").read_text())
+for app in catalog["apps"]:
+    if "version" in app and app["id"] not in sources:
+        problems.append(f"{app['id']}: pinned to a version, but tools/sources.json has no source for its updates")
+for app_id in sources:
+    if not app_id.startswith("_") and app_id not in ids:
+        problems.append(f"tools/sources.json: {app_id} isn't in the catalog")
 
 for app in catalog["apps"]:
     if not app.get("license"):
