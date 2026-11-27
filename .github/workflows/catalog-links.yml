@@ -1,0 +1,31 @@
+name: Catalog links
+
+# Weekly, and by hand: every installer in the catalog must still answer at its address, and a
+# pinned one must still be the size the catalog says (a different size means the file changed,
+# and its SHA-256 won't match). A failure here means an app needs a catalog update before people
+# hit a failed install. Nothing is downloaded but headers.
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - src/main/resources/dev/inicia/catalog.json
+      - tools/check-links.py
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check every installer's address
+        run: tools/check-links.py

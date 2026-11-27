@@ -1,0 +1,189 @@
+name: CI
+
+# Every pull request and every push to main:
+# - workflows: lints these workflow files
+# - test: the unit tests on Linux and Windows, on the JVM
+# - native: builds inicia.exe with GraalVM on Windows, checks it doesn't need the Visual C++
+#   runtime DLLs (a fresh Windows doesn't have them), and smoke-tests it for real: installs 7-Zip
+#   and PuTTY from the catalog (the runner is an administrator), checks inicia sees them, and runs
+#   an exe named inicia_peazip.exe with --silent. The exe is kept as an artifact.
+# - site: checks the website's data against the catalog, the JavaScript parses, and it assembles
+# The window can't be tested here: the runner has no desktop.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  workflows:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Lint the workflows
+        # the Go module proxy checks the download against sum.golang.org
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
+          "$(go env GOPATH)/bin/actionlint" -shellcheck= -pyflakes=
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Build and test
+        run: ./mvnw -B verify
+
+  native:
+    runs-on: windows-2025
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    env:
+      # GraalVM Community Edition for JDK 25, the build jkit's releases use
+      GRAALVM_URL: https://github.com/graalvm/graalvm-ce-builds/releases/download/graal-25.5.5.0.3/graalvm-community-jdk-25i5-25.0.5.0.3_windows-x64_bin.zip
+      GRAALVM_SHA256: b02c3b162129fa8cbfa7ebd0fcc1ae6eba2fc736bf3bef8e40e5ace3e9d9a0d6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up GraalVM
+        run: |
+          set -euo pipefail
+          file="$RUNNER_TEMP/graalvm.zip"
+          curl -fsSL --proto '=https' -o "$file" "$GRAALVM_URL"
+          # from stdin: with a Windows path, sha256sum puts a backslash in front of the hash
+          actual=$(sha256sum < "$file" | cut -d' ' -f1)
+          if [ "$actual" != "$GRAALVM_SHA256" ]; then
+            echo "::error::$GRAALVM_URL has SHA-256 $actual, expected $GRAALVM_SHA256"
+            exit 1
+          fi
+          7z x -bso0 -o"$RUNNER_TEMP/graalvm" "$file"
+          home=$(dirname "$(find "$RUNNER_TEMP/graalvm" -maxdepth 2 -name release -type f | head -1)")
+          "$home/bin/native-image.cmd" --version
+          home=$(cygpath -w "$home")
+          echo "GRAALVM_HOME=$home" >> "$GITHUB_ENV"
+          echo "JAVA_HOME=$home" >> "$GITHUB_ENV"
+          echo "$home\\bin" >> "$GITHUB_PATH"
+
+      - name: Cache Maven downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-native-${{ hashFiles('pom.xml') }}
+          restore-keys: maven-native-
+
+      - name: Build inicia.exe
+        run: ./mvnw -B -Pnative package
+
+      - name: Check it doesn't need the Visual C++ runtime DLLs
+        # the windows-static-vcruntime profile links them in; a fresh Windows doesn't have them
+        shell: pwsh
+        run: |
+          $bytes = [IO.File]::ReadAllBytes("target\inicia.exe")
+          $text = [Text.Encoding]::ASCII.GetString($bytes)
+          foreach ($dll in 'VCRUNTIME140.dll', 'VCRUNTIME140_1.dll', 'MSVCP140.dll') {
+            if ($text.IndexOf($dll, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
+              Write-Output "::error::inicia.exe imports $dll, which a fresh Windows doesn't have"
+              exit 1
+            }
+          }
+          "inicia.exe: {0:N1} MB, no Visual C++ runtime DLLs needed" -f ($bytes.Length / 1MB)
+
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Check($what, $ok) { if (-not $ok) { Write-Output "::error::$what"; exit 1 } else { "ok: $what" } }
+          $exe = "$PWD\target\inicia.exe"
+
+          & $exe --version
+          Check 'inicia --version' ($LASTEXITCODE -eq 0)
+          $list = & $exe list | Out-String
+          Check 'inicia list shows the catalog' ($list -match '7zip' -and $list -match 'cat-programming')
+          & $exe install all --dry-run | Out-Null
+          Check 'inicia install all --dry-run' ($LASTEXITCODE -eq 0)
+
+          # real installs, checked against the catalog's SHA-256 and signers
+          $log = "$env:RUNNER_TEMP\inicia.log"
+          & $exe install 7zip putty --quiet --log $log
+          $code = $LASTEXITCODE
+          Get-Content $log
+          Check 'inicia install 7zip putty --quiet' ($code -eq 0)
+          $status = & $exe status 7zip putty | Out-String
+          $status
+          Check 'both are installed and up to date' (($status -split "`n" | Select-String 'up to date').Count -eq 2)
+          & $exe install 7zip --quiet
+          Check 'a second run leaves them alone' ($LASTEXITCODE -eq 0)
+
+          # a downloaded exe's name selects its apps; --silent installs them with no window
+          Copy-Item $exe "$env:RUNNER_TEMP\inicia_peazip.exe"
+          & "$env:RUNNER_TEMP\inicia_peazip.exe" --silent
+          Check 'inicia_peazip.exe --silent' ($LASTEXITCODE -eq 0)
+          $status = & $exe status peazip | Out-String
+          $status
+          Check 'PeaZip is installed' ($status -match 'up to date')
+
+          # nothing was asked: exit code 2
+          & $exe install 2>$null
+          Check 'no apps named: exit code 2' ($LASTEXITCODE -eq 2)
+
+      - name: Keep inicia.exe
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: inicia-windows-x64
+          path: target/inicia.exe
+          if-no-files-found: error
+
+  site:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check the site's data against the catalog
+        run: tools/check-site.py
+
+      - name: Check the JavaScript parses
+        run: for f in web/*.js; do node --check "$f"; done
+
+      - name: Assemble the site
+        run: |
+          web/assemble.sh
+          test -f target/web/index.html && test -f target/web/icons/index.json

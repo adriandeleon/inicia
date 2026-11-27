@@ -1,5 +1,8 @@
 # inicia
 
+[![CI](https://github.com/adriandeleon/inicia/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/adriandeleon/inicia/actions/workflows/ci.yml)
+[![Catalog links](https://github.com/adriandeleon/inicia/actions/workflows/catalog-links.yml/badge.svg)](https://github.com/adriandeleon/inicia/actions/workflows/catalog-links.yml)
+
 Installs a chosen set of Windows apps in one go: silently, each download checked against the
 catalog's SHA-256 or its publisher's code signature, with no toolbars or other bundled extras.
 Apps already at the catalog's version are left alone; older ones are upgraded. One native exe,
@@ -119,6 +122,19 @@ The exe has to be built on Windows: native-image can't cross-compile. With Graal
 ```powershell
 .\mvnw.cmd -Pnative package        # target\inicia.exe
 ```
+
+On Windows the build links the Visual C++ runtime into the exe (the `windows-static-vcruntime`
+profile), so `inicia.exe` starts on a fresh Windows, which doesn't have `vcruntime140.dll`. It
+needs only DLLs that ship with Windows 10 and 11.
+
+## CI
+
+- `ci.yml`, on every pull request and push to main: the tests on Linux and Windows, the native
+  exe (checked for Visual C++ runtime imports, then smoke-tested by really installing 7-Zip,
+  PuTTY and, as `inicia_peazip.exe --silent`, PeaZip on the runner), the site's data
+  (`tools/check-site.py`: every app has an icon and a News entry), and actionlint.
+- `catalog-links.yml`, weekly and when the catalog changes: every installer still answers at its
+  address, and pinned ones are still the size the catalog says (`tools/check-links.py`).
 
 ## Not done yet
 

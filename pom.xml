@@ -136,6 +136,33 @@
 
   <profiles>
     <!--
+      With native, on Windows: link the Visual C++ runtime (vcruntime140.dll, vcruntime140_1.dll)
+      into the exe. A fresh Windows doesn't have those DLLs, and inicia is one file that has to
+      start on exactly such a PC, so it can't ship them beside it the way a .zip can. The Universal
+      C Runtime (the api-ms-win-crt-* imports) stays dynamic: it's part of Windows 10 and 11.
+    -->
+    <profile>
+      <id>windows-static-vcruntime</id>
+      <activation>
+        <os><family>windows</family></os>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.graalvm.buildtools</groupId>
+            <artifactId>native-maven-plugin</artifactId>
+            <version>${native-maven-plugin.version}</version>
+            <configuration>
+              <buildArgs combine.children="append">
+                <buildArg>-H:NativeLinkerOption=/NODEFAULTLIB:vcruntime.lib</buildArg>
+                <buildArg>-H:NativeLinkerOption=libvcruntime.lib</buildArg>
+              </buildArgs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!--
       mvnw -Pnative package   (on Windows, with GRAALVM_HOME pointing at GraalVM 25 and the
       Visual Studio C++ Build Tools installed; native-image finds them itself)
       Builds target/inicia.exe. native-image can't cross-compile: the Windows exe is built on Windows.
