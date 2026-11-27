@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>inicia: install the apps you pick, in one go</title>
+  <meta name="description" content="Pick Windows apps and get one installer that sets them all up silently, checked against their publishers' hashes and signatures, with no bundled extras.">
+  <link rel="stylesheet" href="picker.css">
+  <script src="picker.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1 class="wordmark">inicia</h1>
+      <p class="lede">Tick the apps you want, download one installer, run it. Everything installs
+        silently, each download checked against its publisher's hash or signature, with no
+        toolbars or other extras. Run it again later to update.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <p id="status" class="status" role="status">Loading the catalog…</p>
+    <form id="apps" class="apps" hidden></form>
+
+    <section class="how">
+      <h2>How it works</h2>
+      <ol>
+        <li><strong>Run the file you download.</strong> Its name says which apps to install, so
+          keep the name as it is. Windows asks for administrator rights, which installers need.</li>
+        <li><strong>inicia checks every download</strong> against the hash in its catalog or the
+          publisher's code signature, and stops if it doesn't match.</li>
+        <li><strong>Apps you already have are left alone</strong>, and older versions are upgraded.
+          Run the same file again any time to update.</li>
+      </ol>
+      <p>Windows only (x64 and ARM64). From a terminal, <code>inicia install</code> takes the
+        same ids, or a list file: <code>inicia install -f apps.txt</code>.</p>
+    </section>
+  </main>
+
+  <div class="bar" id="bar">
+    <div class="wrap bar-inner">
+      <p class="count" id="count">No apps selected</p>
+      <div class="actions">
+        <button type="button" class="secondary" id="copy" disabled>Copy command</button>
+        <a class="secondary button" id="list" aria-disabled="true">apps.txt</a>
+        <a class="primary button" id="get" aria-disabled="true">Get your installer</a>
+      </div>
+    </div>
+    <p class="wrap note" id="note" hidden></p>
+  </div>
+</body>
+</html>
