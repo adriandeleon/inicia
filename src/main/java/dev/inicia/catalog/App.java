@@ -16,12 +16,20 @@ import java.util.regex.Pattern;
  *                    in which case an installed copy is left alone rather than upgraded
  * @param detect      matches the app's DisplayName in Windows' list of installed programs
  * @param installers  one per architecture
+ * @param note        something to know before installing (a license it accepts, say); may be empty
+ * @param requires    ids of apps installed first, because this one needs them
+ * @param suite       the family of apps this one belongs to ({@code Vitrina}), shown on the site
+ * @param released    when the publisher released this version (YYYY-MM-DD); empty when unknown
+ *                    or for a "latest" download
  */
 public record App(String id, String name, String category, String description, String homepage,
-                  Optional<String> version, Pattern detect, List<Installer> installers) {
+                  Optional<String> version, Pattern detect, List<Installer> installers,
+                  Optional<String> note, List<String> requires, Optional<String> suite,
+                  Optional<java.time.LocalDate> released) {
 
     public App {
         installers = List.copyOf(installers);
+        requires = List.copyOf(requires);
     }
 
     /** The installer to use on a machine of the given architecture, if any can run there. */

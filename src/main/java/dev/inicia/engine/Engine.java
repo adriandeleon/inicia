@@ -5,7 +5,6 @@ import dev.inicia.catalog.Installer;
 import dev.inicia.catalog.InstallerType;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -28,27 +27,38 @@ public final class Engine {
     private final SignatureCheck signatures;
     private final ProcessRunner runner;
     private final InstalledApps installedApps;
-    private final PrintStream out;
+    private final Progress progress;
     private final Path workDir;
+    private volatile boolean cancelled;
 
     public Engine(Downloader downloader, SignatureCheck signatures, ProcessRunner runner,
-                  InstalledApps installedApps, PrintStream out, Path workDir) {
+                  InstalledApps installedApps, Progress progress, Path workDir) {
         this.downloader = downloader;
         this.signatures = signatures;
         this.runner = runner;
         this.installedApps = installedApps;
-        this.out = out;
+        this.progress = progress;
         this.workDir = workDir;
+    }
+
+    /** Stops before the next app; an installer already running is left to finish. */
+    public void cancel() {
+        cancelled = true;
     }
 
     public List<Result> run(List<Step> steps) throws InterruptedException {
         List<Result> results = new ArrayList<>();
         for (Step step : steps) {
+            Result result;
             if (!step.action().runs()) {
-                results.add(new Result(step.app(), Status.SKIPPED, step.action().label(), false));
-                continue;
+                result = new Result(step.app(), Status.SKIPPED, step.action().label(), false);
+            } else if (cancelled) {
+                result = new Result(step.app(), Status.SKIPPED, "cancelled", false);
+            } else {
+                result = runOne(step);
             }
-            results.add(runOne(step));
+            results.add(result);
+            progress.finished(result);
         }
         return results;
     }
@@ -61,9 +71,13 @@ public final class Engine {
         Path file = dir.resolve(installer.fileName(app.id()));
         try {
             Files.createDirectories(dir);
-            out.println(label + ": downloading from " + installer.url().getHost());
-            Downloader.Download download = downloader.fetch(installer.url(), file);
-            out.println("  " + size(download.size()) + " from " + download.from().getHost());
+            progress.phase(app, Progress.Phase.DOWNLOADING);
+            progress.line(label + ": downloading from " + installer.url().getHost());
+            Downloader.Download download = downloader.fetch(installer.url(), file,
+                    (bytes, total) -> progress.downloaded(app, bytes, total));
+            progress.line("  " + size(download.size()) + " from " + download.from().getHost());
+
+            progress.phase(app, Progress.Phase.CHECKING);
 
             Optional<String> problem = verify(installer, download);
             if (problem.isPresent()) {
@@ -71,7 +85,8 @@ public final class Engine {
                 return failed(app, problem.get());
             }
 
-            out.println("  installing (" + installer.type().id() + ", silent)");
+            progress.phase(app, Progress.Phase.INSTALLING);
+            progress.line("  installing (" + installer.type().id() + ", silent)");
             Path msiLog = installer.type() == InstallerType.MSI ? dir.resolve("msiexec.log") : null;
             int code = runner.run(InstallerCommand.build(installer, file, msiLog), INSTALL_TIMEOUT);
             InstallerCommand.Outcome outcome = InstallerCommand.outcome(code);
@@ -90,7 +105,7 @@ public final class Engine {
             } else {
                 detail = "installer finished, but Windows' list of programs doesn't show " + app.name();
             }
-            out.println("  " + detail + (reboot ? " (restart Windows to finish)" : ""));
+            progress.line("  " + detail + (reboot ? " (restart Windows to finish)" : ""));
             return new Result(app, Status.INSTALLED, detail, reboot);
         } catch (IOException e) {
             return failed(app, e.getMessage());
@@ -104,7 +119,7 @@ public final class Engine {
                 return Optional.of("SHA-256 mismatch: the catalog has " + installer.sha256().get()
                         + ", the download is " + download.sha256());
             }
-            out.println("  SHA-256 matches the catalog");
+            progress.line("  SHA-256 matches the catalog");
         }
         if (installer.signer().isPresent()) {
             SignatureCheck.Result sig = signatures.check(download.file());
@@ -114,13 +129,13 @@ public final class Engine {
             if (!sig.signedBy(installer.signer().get())) {
                 return Optional.of("signed by \"" + sig.subject() + "\", not " + installer.signer().get());
             }
-            out.println("  signed by " + installer.signer().get());
+            progress.line("  signed by " + installer.signer().get());
         }
         return Optional.empty();
     }
 
     private Result failed(App app, String why) {
-        out.println("  FAILED: " + why);
+        progress.line("  FAILED: " + why);
         return new Result(app, Status.FAILED, why, false);
     }
 

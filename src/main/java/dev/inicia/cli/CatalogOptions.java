@@ -51,11 +51,14 @@ final class CatalogOptions {
         return CatalogReader.read(Path.of(source));
     }
 
-    /** The apps for these ids, in order; unknown ids are reported together. */
+    /**
+     * The apps for these ids ("all" and "cat-…" included), in order, with what they require
+     * first; unknown ids are reported together.
+     */
     static List<App> resolve(Catalog catalog, List<String> ids) throws IOException {
         List<App> apps = new ArrayList<>();
         List<String> unknown = new ArrayList<>();
-        for (String id : ids) {
+        for (String id : catalog.expand(ids)) {
             catalog.app(id).ifPresentOrElse(app -> {
                 if (!apps.contains(app)) {
                     apps.add(app);
@@ -66,6 +69,10 @@ final class CatalogOptions {
             throw new IOException("not in the catalog: " + String.join(", ", unknown)
                     + " (inicia list shows what is)");
         }
-        return apps;
+        List<String> missing = catalog.missingRequirements();
+        if (!missing.isEmpty()) {
+            throw new IOException(String.join("; ", missing));
+        }
+        return catalog.withRequirements(apps);
     }
 }

@@ -1,0 +1,67 @@
+[
+  {
+    "date": "2026-11-27",
+    "title": "Go, Rust and a C/C++ compiler",
+    "text": "Go, Rust (through rustup, with the stable toolchain) and Microsoft's Visual Studio Build Tools, which Rust needs to link programs on Windows, so picking Rust brings them along. Python, Node.js and the .NET SDK move to the new Programming category.",
+    "apps": [
+      "go",
+      "rust",
+      "vs-buildtools"
+    ]
+  },
+  {
+    "date": "2026-11-27",
+    "title": "WinSCP, and picking whole groups",
+    "text": "WinSCP joins the catalog. Pick everything at once, a whole category, or every Vitrina app, and the download keeps a short name: inicia_all.exe, inicia_cat-media.exe, inicia_suite-vitrina.exe. FileZilla isn't here: its download links expire and are only handed to web browsers. Neither is Zenmap: only the paid Nmap OEM installer runs silently.",
+    "apps": [
+      "winscp"
+    ]
+  },
+  {
+    "date": "2026-11-27",
+    "title": "15 more apps, from Chrome to VirtualBox",
+    "text": "Browsers, developer tools, runtimes, office and media apps. VirtualBox now brings the Visual C++ runtime it needs with it, and Docker Desktop's card says what installing it accepts. WhatsApp and ChatGPT aren't here: they're only published through the Microsoft Store, with no installer to download and check. Neither is Claude Desktop: its download only answers web browsers.",
+    "apps": [
+      "chrome",
+      "slack",
+      "spotify",
+      "dropbox",
+      "libreoffice",
+      "sumatrapdf",
+      "peazip",
+      "git",
+      "python",
+      "nodejs",
+      "dotnet-sdk",
+      "docker",
+      "virtualbox",
+      "vcredist",
+      "vcredist-x86"
+    ]
+  },
+  {
+    "date": "2026-11-27",
+    "title": "The Vitrina apps",
+    "text": "Six apps from the Vitrina collection, installed from their Windows MSI releases.",
+    "apps": [
+      "editora",
+      "termina",
+      "torrenta",
+      "mirada",
+      "nux",
+      "modula"
+    ]
+  },
+  {
+    "date": "2026-11-26",
+    "title": "inicia starts",
+    "text": "The first catalog: five apps, each download checked against its publisher's SHA-256 or code signature before it runs.",
+    "apps": [
+      "7zip",
+      "notepad-plus-plus",
+      "putty",
+      "vlc",
+      "firefox"
+    ]
+  }
+]

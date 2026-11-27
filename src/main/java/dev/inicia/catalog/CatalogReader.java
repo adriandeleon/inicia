@@ -32,7 +32,8 @@ public final class CatalogReader {
     private static final Pattern SHA256 = Pattern.compile("[0-9a-f]{64}");
     private static final Set<String> TOP_KEYS = Set.of("catalog", "apps");
     private static final Set<String> APP_KEYS = Set.of(
-            "id", "name", "category", "description", "homepage", "version", "detect", "installers");
+            "id", "name", "category", "description", "homepage", "version", "detect", "installers",
+            "note", "requires", "suite", "released");
     private static final Set<String> DETECT_KEYS = Set.of("displayName");
     private static final Set<String> INSTALLER_KEYS = Set.of("arch", "type", "url", "sha256", "signer", "args");
 
@@ -119,6 +120,8 @@ public final class CatalogReader {
         String id = text(node, "id", at, true);
         if (id != null && !ID.matcher(id).matches()) {
             problems.add(at + ".id: \"" + id + "\" must be lowercase letters, digits and hyphens, at most 40");
+        } else if (id != null && Catalog.isSelector(id)) {
+            problems.add(at + ".id: \"" + id + "\" is reserved: \"all\", \"cat-…\" and \"suite-…\" select groups of apps");
         }
         String name = text(node, "name", at, true);
         String category = Optional.ofNullable(text(node, "category", at, false)).orElse("Other");
@@ -129,6 +132,32 @@ public final class CatalogReader {
         }
         Optional<String> version = Optional.ofNullable(text(node, "version", at, false));
         Pattern detect = detect(node.get("detect"), at + ".detect", name);
+        Optional<String> note = Optional.ofNullable(text(node, "note", at, false));
+        Optional<String> suite = Optional.ofNullable(text(node, "suite", at, false));
+        Optional<java.time.LocalDate> released = Optional.empty();
+        String releasedText = text(node, "released", at, false);
+        if (releasedText != null) {
+            try {
+                released = Optional.of(java.time.LocalDate.parse(releasedText));
+            } catch (java.time.format.DateTimeParseException e) {
+                problems.add(at + ".released: \"" + releasedText + "\" must be a date, YYYY-MM-DD");
+            }
+        }
+        List<String> requires = new ArrayList<>();
+        JsonNode requiresNode = node.get("requires");
+        if (requiresNode != null) {
+            if (!requiresNode.isArray()) {
+                problems.add(at + ".requires: must be a list of app ids");
+            } else {
+                for (JsonNode r : requiresNode) {
+                    if (r.isTextual() && ID.matcher(r.textValue()).matches() && !r.textValue().equals(id)) {
+                        requires.add(r.textValue());
+                    } else {
+                        problems.add(at + ".requires: " + r + " isn't another app's id");
+                    }
+                }
+            }
+        }
 
         List<Installer> installers = new ArrayList<>();
         JsonNode list = node.get("installers");
@@ -150,7 +179,7 @@ public final class CatalogReader {
         if (problems.size() > before) {
             return null;
         }
-        return new App(id, name, category, description, homepage, version, detect, installers);
+        return new App(id, name, category, description, homepage, version, detect, installers, note, requires, suite, released);
     }
 
     private Pattern detect(JsonNode node, String at, String name) {

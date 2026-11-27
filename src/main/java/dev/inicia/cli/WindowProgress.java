@@ -1,0 +1,107 @@
+package dev.inicia.cli;
+
+import dev.inicia.catalog.App;
+import dev.inicia.engine.Engine;
+import dev.inicia.engine.Progress;
+import dev.inicia.engine.Step;
+import dev.inicia.windows.WinFormsUi;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+/** Shows the engine's progress in the window: each app's status, and one bar for the whole run. */
+final class WindowProgress implements Progress {
+
+    // how far through an app each step is, for the overall bar: the download is most of the wait
+    private static final double DOWNLOADED = 0.7;
+    private static final double CHECKED = 0.75;
+
+    private final WinFormsUi ui;
+    private final List<App> running;
+    private final Map<String, Double> done = new HashMap<>();
+    private final Map<String, Long> shown = new HashMap<>();
+    private String activity = "Getting ready…";
+
+    WindowProgress(WinFormsUi ui, List<Step> steps) {
+        this.ui = ui;
+        this.running = steps.stream().filter(s -> s.action().runs()).map(Step::app).toList();
+    }
+
+    @Override
+    public void line(String text) {
+        ui.send(WinFormsUi.event("log").put("text", text));
+    }
+
+    @Override
+    public void phase(App app, Phase phase) {
+        String what = switch (phase) {
+            case DOWNLOADING -> "Downloading";
+            case CHECKING -> "Checking the download";
+            case INSTALLING -> "Installing";
+        };
+        done.put(app.id(), switch (phase) {
+            case DOWNLOADING -> 0.0;
+            case CHECKING -> DOWNLOADED;
+            case INSTALLING -> CHECKED;
+        });
+        app(app, what + "…", "working");
+        int index = running.indexOf(app) + 1;
+        activity = what + " " + app.name() + (running.size() > 1 ? " (" + index + " of " + running.size() + ")" : "") + "…";
+        overall();
+    }
+
+    @Override
+    public void downloaded(App app, long bytes, long total) {
+        if (total > 0) {
+            long percent = bytes * 100 / total;
+            if (shown.getOrDefault(app.id(), -1L) == percent) {
+                return;
+            }
+            shown.put(app.id(), percent);
+            done.put(app.id(), DOWNLOADED * bytes / total);
+            app(app, "Downloading " + percent + "%", "working");
+        } else {
+            long mb = bytes / (1024 * 1024);
+            if (shown.getOrDefault(app.id(), -1L) == mb) {
+                return;
+            }
+            shown.put(app.id(), mb);
+            app(app, "Downloading " + mb + " MB", "working");
+        }
+        overall();
+    }
+
+    @Override
+    public void finished(Engine.Result result) {
+        App app = result.app();
+        String state = switch (result.status()) {
+            case INSTALLED -> "ok";
+            case SKIPPED -> "skip";
+            case FAILED -> "fail";
+        };
+        String status = result.status() == Engine.Status.FAILED
+                ? "Failed: " + result.detail()
+                : capitalize(result.detail()) + (result.rebootNeeded() ? " · restart to finish" : "");
+        app(app, status, state);
+        if (running.contains(app)) {
+            done.put(app.id(), 1.0);
+            overall();
+        }
+    }
+
+    private void app(App app, String status, String state) {
+        ui.send(WinFormsUi.event("app").put("id", app.id()).put("status", status).put("state", state));
+    }
+
+    private void overall() {
+        double sum = running.stream().mapToDouble(a -> done.getOrDefault(a.id(), 0.0)).sum();
+        int value = running.isEmpty() ? 1000 : (int) Math.round(1000 * sum / running.size());
+        ui.send(WinFormsUi.event("overall").put("value", value).put("text", activity));
+    }
+
+    static String capitalize(String s) {
+        return s.isEmpty() ? s : s.substring(0, 1).toUpperCase(Locale.ROOT) + s.substring(1);
+    }
+}

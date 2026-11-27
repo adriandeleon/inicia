@@ -29,21 +29,35 @@ public final class Elevation {
         }
     }
 
+    /** What {@link #start} returns when the UAC prompt was declined (ERROR_CANCELLED). */
+    public static final int DECLINED = 1223;
+
     /**
-     * Starts {@code exe} with {@code args} as administrator, in its own console window, and waits.
+     * Starts {@code exe} with {@code args}.
      *
-     * @return its exit code; 1223 when the UAC prompt was declined
+     * @param elevate as administrator: Windows shows the UAC prompt
+     * @param hidden  with its console window hidden (the window inicia shows itself, or none)
+     * @param wait    wait for it to end
+     * @return its exit code when waiting, else 0; {@link #DECLINED} when the UAC prompt was declined
      */
-    public static int relaunch(Path exe, List<String> args) throws IOException, InterruptedException {
+    public static int start(Path exe, List<String> args, boolean elevate, boolean hidden, boolean wait)
+            throws IOException, InterruptedException {
         String script = """
+                $a = @{ FilePath = $env:INICIA_EXE; ArgumentList = $env:INICIA_ARGS; PassThru = $true }
+                if ($env:INICIA_ELEVATE -eq '1') { $a.Verb = 'RunAs' }
+                if ($env:INICIA_HIDDEN -eq '1') { $a.WindowStyle = 'Hidden' }
+                if ($env:INICIA_WAIT -eq '1') { $a.Wait = $true }
                 try {
-                  $p = Start-Process -FilePath $env:INICIA_EXE -ArgumentList $env:INICIA_ARGS -Verb RunAs -Wait -PassThru
-                  $p.ExitCode
+                  $p = Start-Process @a
+                  if ($env:INICIA_WAIT -eq '1') { $p.ExitCode } else { 0 }
                 } catch { 1223 }
                 """;
         String out = PowerShell.run(script, Map.of(
                 "INICIA_EXE", exe.toString(),
-                "INICIA_ARGS", commandLine(args)));
+                "INICIA_ARGS", commandLine(args),
+                "INICIA_ELEVATE", elevate ? "1" : "0",
+                "INICIA_HIDDEN", hidden ? "1" : "0",
+                "INICIA_WAIT", wait ? "1" : "0"));
         try {
             return Integer.parseInt(out.strip());
         } catch (NumberFormatException e) {

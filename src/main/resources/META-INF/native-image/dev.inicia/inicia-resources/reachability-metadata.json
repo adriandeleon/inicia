@@ -1,0 +1,7 @@
+{
+  "resources": [
+    { "glob": "dev/inicia/*.json" },
+    { "glob": "dev/inicia/*.properties" },
+    { "glob": "dev/inicia/windows/*.ps1" }
+  ]
+}

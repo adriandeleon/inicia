@@ -5,36 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>inicia: install the apps you pick, in one go</title>
   <meta name="description" content="Pick Windows apps and get one installer that sets them all up silently, checked against their publishers' hashes and signatures, with no bundled extras.">
-  <link rel="stylesheet" href="picker.css">
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="site.css">
+  <script src="common.js" defer></script>
   <script src="picker.js" defer></script>
 </head>
 <body>
-  <header class="top">
-    <div class="wrap">
-      <h1 class="wordmark">inicia</h1>
-      <p class="lede">Tick the apps you want, download one installer, run it. Everything installs
-        silently, each download checked against its publisher's hash or signature, with no
-        toolbars or other extras. Run it again later to update.</p>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="wordmark" href="./">inicia</a>
+      <nav aria-label="Site">
+        <a href="./" aria-current="page">Apps</a>
+        <a href="news.html">News</a>
+        <a href="docs.html">Docs</a>
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to dark theme">Dark</button>
+      </nav>
     </div>
   </header>
 
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <div class="hero-text">
+        <h1>Set up a Windows PC in one go.</h1>
+        <p class="lede">Tick the apps you want and download one small installer. It installs every
+          app silently, checks each download against its publisher's hash or signature first, and
+          never adds toolbars or other extras. Run it again later and it updates what's out of date.</p>
+        <p class="hero-actions">
+          <a class="primary button" href="#apps-heading">Pick your apps</a>
+          <a class="secondary button" href="docs.html">How it works</a>
+        </p>
+      </div>
+      <figure class="hero-shot">
+        <img src="hero.png" width="960" height="765"
+             alt="inicia's window installing four apps: 7-Zip and PuTTY are installed, SumatraPDF is downloading at 74 percent, PeaZip is waiting, and VLC, Python and Git are already up to date.">
+        <figcaption>A real screenshot, on Windows 11.</figcaption>
+      </figure>
+    </div>
+  </section>
+
   <main class="wrap">
+    <div class="section-head">
+      <h2 id="apps-heading" class="section-title">Pick your apps</h2>
+      <div class="bulk" id="bulk" hidden>
+        <button type="button" class="secondary small" id="select-all">Select all</button>
+        <button type="button" class="secondary small" id="clear-all" disabled>Clear all</button>
+      </div>
+    </div>
+    <p class="saved" id="saved" hidden>Your picks are saved in this browser for next time.
+      <button type="button" class="link-button" id="forget">Forget my picks</button></p>
     <p id="status" class="status" role="status">Loading the catalog…</p>
     <form id="apps" class="apps" hidden></form>
-
-    <section class="how">
-      <h2>How it works</h2>
-      <ol>
-        <li><strong>Run the file you download.</strong> Its name says which apps to install, so
-          keep the name as it is. Windows asks for administrator rights, which installers need.</li>
-        <li><strong>inicia checks every download</strong> against the hash in its catalog or the
-          publisher's code signature, and stops if it doesn't match.</li>
-        <li><strong>Apps you already have are left alone</strong>, and older versions are upgraded.
-          Run the same file again any time to update.</li>
-      </ol>
-      <p>Windows only (x64 and ARM64). From a terminal, <code>inicia install</code> takes the
-        same ids, or a list file: <code>inicia install -f apps.txt</code>.</p>
-    </section>
   </main>
 
   <div class="bar" id="bar">
@@ -48,5 +68,13 @@
     </div>
     <p class="wrap note" id="note" hidden></p>
   </div>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>inicia is free software under the MIT license ·
+        <a href="https://github.com/adriandeleon/inicia">Source on GitHub</a>.
+        App names and logos belong to their owners; inicia downloads each app from its publisher.</p>
+    </div>
+  </footer>
 </body>
 </html>

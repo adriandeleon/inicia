@@ -2,6 +2,8 @@ package dev.inicia.catalog;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -12,11 +14,14 @@ class CatalogReaderTest {
     @Test
     void builtInCatalogReads() {
         Catalog catalog = CatalogReader.builtIn();
-        assertThat(catalog.apps()).extracting(App::id).contains("7zip", "notepad-plus-plus", "putty", "vlc", "firefox");
+        assertThat(catalog.apps()).extracting(App::id).contains("7zip", "notepad-plus-plus", "putty", "vlc", "firefox",
+                "editora", "termina", "torrenta", "mirada", "nux", "modula");
         App sevenZip = catalog.app("7zip").orElseThrow();
         assertThat(sevenZip.version()).contains("26.06");
         assertThat(sevenZip.installerFor(Arch.ARM64).orElseThrow().arch()).isEqualTo(Arch.ARM64);
         assertThat(catalog.app("firefox").orElseThrow().version()).isEmpty();
+        assertThat(catalog.apps()).filteredOn(a -> a.suite().isPresent()).extracting(App::id)
+                .containsExactly("editora", "termina", "torrenta", "mirada", "nux", "modula");
     }
 
     @Test
@@ -70,6 +75,65 @@ class CatalogReaderTest {
                 .isInstanceOfSatisfying(CatalogException.class, e -> assertThat(e.problems()).containsExactly(
                         "apps[0].installers[1].arch: a second x64 installer",
                         "apps[2].id: b appears more than once"));
+    }
+
+    @Test
+    void allAndCategoriesExpandInCatalogOrder() {
+        Catalog catalog = CatalogReader.builtIn();
+        assertThat(Catalog.categoryToken("Developer tools")).isEqualTo("cat-developer-tools");
+        assertThat(Catalog.categoryToken("Web browsers")).isEqualTo("cat-web-browsers");
+        assertThat(catalog.expand(List.of("all"))).hasSize(catalog.apps().size());
+        assertThat(catalog.expand(List.of("vlc", "cat-web-browsers", "firefox", "nope", "cat-nothing")))
+                .containsExactly("vlc", "firefox", "chrome", "nope", "cat-nothing");
+        assertThat(Catalog.suiteToken("Vitrina")).isEqualTo("suite-vitrina");
+        assertThat(catalog.expand(List.of("git", "suite-vitrina", "editora", "suite-nothing")))
+                .containsExactly("git", "editora", "termina", "torrenta", "mirada", "nux", "modula", "suite-nothing");
+        // every category's selector fits an exe name, and names only its own apps
+        for (App app : catalog.apps()) {
+            assertThat(catalog.expand(List.of(Catalog.categoryToken(app.category())))).contains(app.id());
+            assertThat(Catalog.categoryToken(app.category())).matches(CatalogReader.ID.pattern());
+        }
+    }
+
+    @Test
+    void groupSelectorsAreReservedIds() {
+        String installer = "[ { \"arch\": \"x64\", \"type\": \"nsis\", \"url\": \"https://e.com/a.exe\", \"sha256\": \"" + SHA + "\" } ]";
+        assertThatThrownBy(() -> CatalogReader.read("t", """
+                { "catalog": 1, "apps": [ { "id": "all", "name": "A", "installers": %1$s },
+                                          { "id": "cat-x", "name": "B", "installers": %1$s } ] }
+                """.formatted(installer)))
+                .isInstanceOfSatisfying(CatalogException.class, e -> assertThat(e.problems()).containsExactly(
+                        "apps[0].id: \"all\" is reserved: \"all\", \"cat-…\" and \"suite-…\" select groups of apps",
+                        "apps[1].id: \"cat-x\" is reserved: \"all\", \"cat-…\" and \"suite-…\" select groups of apps"));
+    }
+
+    @Test
+    void builtInRequirementsAllExist() {
+        assertThat(CatalogReader.builtIn().missingRequirements()).isEmpty();
+    }
+
+    @Test
+    void requirementsComeFirstOnceAndCyclesEnd() throws Exception {
+        String installer = "[ { \"arch\": \"x64\", \"type\": \"nsis\", \"url\": \"https://e.com/a.exe\", \"sha256\": \"" + SHA + "\" } ]";
+        Catalog catalog = CatalogReader.read("t", """
+                { "catalog": 1, "apps": [
+                  { "id": "runtime", "name": "Runtime", "installers": %1$s },
+                  { "id": "a", "name": "A", "requires": ["runtime"], "note": "accepts a license", "installers": %1$s },
+                  { "id": "b", "name": "B", "requires": ["runtime", "c"], "installers": %1$s },
+                  { "id": "c", "name": "C", "requires": ["b"], "installers": %1$s },
+                  { "id": "d", "name": "D", "requires": ["nowhere"], "installers": %1$s }
+                ] }
+                """.formatted(installer));
+        assertThat(catalog.withRequirements(List.of(catalog.app("a").orElseThrow(), catalog.app("b").orElseThrow())))
+                .extracting(App::id).containsExactly("runtime", "a", "c", "b");
+        assertThat(catalog.missingRequirements()).containsExactly("d: requires nowhere, which isn't in the catalog");
+        assertThat(catalog.app("a").orElseThrow().note()).contains("accepts a license");
+        assertThatThrownBy(() -> CatalogReader.read("t", """
+                { "catalog": 1, "apps": [ { "id": "a", "name": "A", "requires": ["a", 3], "installers": %s } ] }
+                """.formatted(installer)))
+                .isInstanceOfSatisfying(CatalogException.class, e -> assertThat(e.problems()).containsExactly(
+                        "apps[0].requires: \"a\" isn't another app's id",
+                        "apps[0].requires: 3 isn't another app's id"));
     }
 
     @Test

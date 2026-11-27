@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Docs · inicia</title>
+  <meta name="description" content="How inicia picks, checks and installs Windows apps, and how to add installers of your own.">
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="wordmark" href="./">inicia</a>
+      <nav aria-label="Site">
+        <a href="./">Apps</a>
+        <a href="news.html">News</a>
+        <a href="docs.html" aria-current="page">Docs</a>
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to dark theme">Dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap">
+      <h1>How inicia works</h1>
+      <p class="lede">One small program installs the Windows apps you pick: silently, each download
+        checked before it runs, with nothing extra.</p>
+
+      <div class="docs-layout">
+        <nav class="toc" aria-label="On this page">
+          <ol>
+            <li><a href="#get">Getting your installer</a></li>
+            <li><a href="#run">What happens when it runs</a></li>
+            <li><a href="#checks">How downloads are checked</a></li>
+            <li><a href="#updates">Updates</a></li>
+            <li><a href="#cli">From the command line</a></li>
+            <li><a href="#own">Installers of your own</a></li>
+            <li><a href="#notes">Apps with something to know</a></li>
+            <li><a href="#limits">What inicia doesn't do</a></li>
+            <li><a href="#build">Building inicia</a></li>
+          </ol>
+        </nav>
+
+        <article class="prose">
+          <h2 id="get">Getting your installer</h2>
+          <p>Tick apps on the <a href="./">Apps page</a> and select <strong>Get your
+            installer</strong>. Every download is the same <code>inicia.exe</code>; only its name
+            changes: <code>inicia_7zip_vlc_python.exe</code>. The name is the list of apps, so
+            <strong>keep it as it is</strong>. A browser's <code> (1)</code> is fine. A whole
+            category or suite goes in the name as one word (<code>inicia_cat-media_suite-vitrina.exe</code>), and
+            <strong>Select all</strong> gives <code>inicia_all.exe</code>.</p>
+          <p>Run it. Installers need administrator rights, so Windows asks for them; then inicia's
+            window shows each app's progress and one bar for the whole run. <strong>Show
+            details</strong> shows everything it does, and <strong>Cancel</strong> stops after the
+            app being installed. When it's done, it says what it installed and what it left alone.</p>
+          <p>A plain <code>inicia.exe</code>, with no apps in its name, opens as a picker: tick
+            apps there and choose <strong>Install</strong>.</p>
+          <p>Windows SmartScreen may say it "protected your PC" the first time: inicia's exe isn't
+            code-signed yet. Choose <em>More info</em>, then <em>Run anyway</em>.</p>
+          <p>The page also gives you the same picks as a command (<strong>Copy command</strong>) or
+            a list file (<strong>apps.txt</strong>), and the address of the page keeps your picks,
+            so you can bookmark or share it.</p>
+          <p>Your picks are also kept in your browser (its local storage; nothing is sent to the
+            site), so they're ticked again on your next visit. <strong>Forget my picks</strong>, under
+            the list's heading, removes them. A link with picks in it takes their place.</p>
+
+          <h2 id="run">What happens when it runs</h2>
+          <ol>
+            <li><strong>It makes a plan.</strong> inicia reads Windows' list of installed programs
+              (the same one Settings › Apps shows) and decides, per app: install, upgrade, or leave
+              it alone. Apps another app needs come first, such as the Visual C++ runtime for
+              VirtualBox.</li>
+            <li><strong>It downloads each installer</strong> from the publisher's own address, over
+              https only.</li>
+            <li><strong>It checks the download</strong> (see below). If the check fails, the
+              installer never runs.</li>
+            <li><strong>It runs the installer silently</strong>, with the switches that installer
+              takes: no wizard, no offers, no restart.</li>
+            <li><strong>It confirms the install</strong> by finding the app in Windows' list again,
+              then deletes the installer.</li>
+          </ol>
+          <p>At the end it says what it installed, what it left alone and what failed, and why.
+            If anything failed, the downloads and logs stay in a temporary folder it names.</p>
+
+          <h2 id="checks">How downloads are checked</h2>
+          <p>Every installer in the catalog has at least one of these, and inicia checks every one
+            it has:</p>
+          <ul>
+            <li><strong>SHA-256:</strong> the exact fingerprint of the file the catalog was made
+              with. Used for apps the catalog pins to a version. Where the publisher lists its own
+              hashes (GitHub release digests, <code>SHA256SUMS</code> files), the catalog's match
+              them.</li>
+            <li><strong>Publisher signature:</strong> the file's Authenticode signature must be
+              valid, trusted by Windows, and made by the publisher the catalog names, such as
+              <em>Google LLC</em> or <em>Mozilla Corporation</em>. Used for "latest" downloads,
+              whose file changes with every release, and as a second check for many pinned
+              ones.</li>
+          </ul>
+          <p>Addresses must be https, and a redirect to plain http is refused.</p>
+
+          <h2 id="updates">Updates</h2>
+          <p>Run the same file again any time. Apps older than the catalog's version are
+            upgraded; up-to-date ones are skipped without downloading anything. Apps the catalog
+            installs as "latest" (Chrome, Firefox, Spotify…) update themselves, so inicia leaves
+            an installed copy alone.</p>
+
+          <h2 id="cli">From the command line</h2>
+          <pre><code>inicia list                          # the catalog, by category
+inicia install 7zip vlc python       # these apps
+inicia install cat-developer-tools   # a whole category (inicia list shows each one's name)
+inicia install suite-vitrina        # every app of a suite
+inicia install all                   # everything in the catalog
+inicia install -f apps.txt           # ids from a file; # starts a comment
+inicia install 7zip --dry-run        # show the plan, change nothing
+inicia install git --force           # reinstall even if it's there
+inicia install all --quiet --log C:\logs\inicia.log   # for scripts: no output, exit code 0 when all went well
+inicia status                        # catalog apps installed here, and which are out of date</code></pre>
+          <p>From an administrator terminal it installs right there; otherwise Windows asks for
+            administrator rights and the installs run in a window of their own (with
+            <code>--quiet</code>, a hidden one, and the exit code is passed back).</p>
+          <p>A downloaded <code>inicia_&lt;apps&gt;.exe</code> takes two switches of its own:
+            <code>--silent</code> installs its apps with no window and no output (for deployment
+            tools), and <code>--cli</code> installs them in the console instead of the window.</p>
+          <table>
+            <thead><tr><th>Exit code</th><th>Means</th></tr></thead>
+            <tbody>
+              <tr><td><code>0</code></td><td>Everything installed or was already up to date.</td></tr>
+              <tr><td><code>1</code></td><td>At least one app failed; the others were installed.</td></tr>
+              <tr><td><code>2</code></td><td>Nothing to do with what was asked: no apps named, or not on Windows.</td></tr>
+              <tr><td><code>3</code></td><td>Administrator rights weren't given; nothing was installed.</td></tr>
+            </tbody>
+          </table>
+
+          <h2 id="own">Installers of your own</h2>
+          <p>A catalog is a JSON file. Give inicia yours with <code>--catalog</code> (a file, or
+            an <code>https://</code> address): its apps join the built-in ones, and an app with a
+            built-in id replaces that entry.</p>
+          <pre><code>{
+  "catalog": 1,
+  "apps": [
+    {
+      "id": "my-tool",
+      "name": "My Tool",
+      "category": "In-house",
+      "version": "2.1.0",
+      "installers": [
+        { "arch": "x64", "type": "inno",
+          "url": "https://downloads.example.com/my-tool-2.1.0-x64.exe",
+          "sha256": "…", "signer": "Example Corp" }
+      ]
+    }
+  ]
+}</code></pre>
+          <pre><code>inicia hash https://downloads.example.com/my-tool-2.1.0-x64.exe   # SHA-256, signer, an entry to start from
+inicia check my-catalog.json                                       # every problem, with where it is
+inicia install my-tool --catalog my-catalog.json</code></pre>
+          <table>
+            <thead><tr><th>Field</th><th>What it is</th></tr></thead>
+            <tbody>
+              <tr><td><code>id</code></td><td>Lowercase letters, digits and hyphens. Used on the command line and in exe names. <code>all</code> and names starting with <code>cat-</code> or <code>suite-</code> are taken.</td></tr>
+              <tr><td><code>version</code></td><td>What the installers install. Leave it out for a "latest" address: an installed copy is then left alone.</td></tr>
+              <tr><td><code>released</code></td><td>When the publisher released that version, <code>YYYY-MM-DD</code>; shown on the card.</td></tr>
+              <tr><td><code>detect.displayName</code></td><td>A regular expression for the name in Settings › Apps. By default, the name starts with <code>name</code>.</td></tr>
+              <tr><td><code>requires</code></td><td>Ids of apps to install first.</td></tr>
+              <tr><td><code>note</code></td><td>Something to know before installing; shown on the card and in the plan.</td></tr>
+              <tr><td><code>suite</code></td><td>The family of apps it belongs to; the card says "Part of the … Suite", and <code>suite-&lt;name&gt;</code> selects them all.</td></tr>
+              <tr><td><code>arch</code></td><td><code>x64</code>, <code>x86</code> or <code>arm64</code>. ARM64 PCs fall back to x64, then x86.</td></tr>
+              <tr><td><code>type</code></td><td><code>msi</code>, <code>inno</code> (Inno Setup), <code>nsis</code> (<code>/S</code>), or <code>exe</code> with its own <code>args</code>.</td></tr>
+              <tr><td><code>sha256</code></td><td>The file's hash. Required unless <code>signer</code> is given.</td></tr>
+              <tr><td><code>signer</code></td><td>The signing certificate's name (CN or O).</td></tr>
+              <tr><td><code>args</code></td><td>Extra arguments after the type's own silent ones.</td></tr>
+            </tbody>
+          </table>
+
+          <h2 id="notes">Apps with something to know</h2>
+          <ul>
+            <li><strong>Docker Desktop:</strong> installing it accepts the Docker Subscription
+              Service Agreement; larger companies need a paid plan. It also needs WSL 2.</li>
+            <li><strong>Slack and Spotify</strong> install for the Windows account that runs
+              inicia, not for every account on the PC.</li>
+            <li><strong>Python and the .NET SDK</strong> install side by side with other versions,
+              as their own installers do.</li>
+            <li><strong>VirtualBox</strong> brings the Visual C++ runtime with it.</li>
+          </ul>
+
+          <h2 id="limits">What inicia doesn't do</h2>
+          <ul>
+            <li><strong>Microsoft Store apps</strong>, such as WhatsApp and ChatGPT: there's no
+              installer file to download and check.</li>
+            <li><strong>Downloads only a web browser can get</strong>, such as Claude Desktop's (behind bot
+              protection) and FileZilla's (links that expire): inicia doesn't get around that.</li>
+            <li><strong>Installers that can't run silently</strong>, such as Nmap and Zenmap's free
+              installer: silent install is part of the paid Nmap OEM edition.</li>
+            <li><strong>Uninstalling.</strong> Use Settings › Apps.</li>
+            <li><strong>Windows on 32-bit PCs</strong>, for most apps: the catalog has 64-bit
+              installers.</li>
+          </ul>
+
+          <h2 id="build">Building inicia</h2>
+          <p>inicia is a Java program compiled to a native exe with GraalVM. The source, with
+            build steps, is on <a href="https://github.com/adriandeleon/inicia">GitHub</a>.</p>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>inicia is free software under the MIT license ·
+        <a href="https://github.com/adriandeleon/inicia">Source on GitHub</a>.
+        App names and logos belong to their owners; inicia downloads each app from its publisher.</p>
+    </div>
+  </footer>
+</body>
+</html>

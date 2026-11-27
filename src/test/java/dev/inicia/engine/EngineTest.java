@@ -32,8 +32,9 @@ class EngineTest {
     private Downloader downloads(byte[] content) {
         return new Downloader("test") {
             @Override
-            public Download fetch(URI url, Path target) throws IOException {
+            public Download fetch(URI url, Path target, Listener listener) throws IOException {
                 Files.write(target, content);
+                listener.progress(content.length, content.length);
                 return new Download(target, Downloader.sha256(target), content.length, url);
             }
         };
@@ -61,7 +62,7 @@ class EngineTest {
     private List<Engine.Result> run(Catalog catalog, Downloader downloader, SignatureCheck signatures,
                                     ProcessRunner runner) throws Exception {
         List<Step> steps = Planner.plan(catalog.apps(), installed, Arch.X64, false);
-        return new Engine(downloader, signatures, runner, () -> List.copyOf(installed), out, work).run(steps);
+        return new Engine(downloader, signatures, runner, () -> List.copyOf(installed), Progress.printing(out), work).run(steps);
     }
 
     @Test
@@ -129,13 +130,39 @@ class EngineTest {
         installed.add(new InstalledApp("Tool", "2.0"));
         Downloader never = new Downloader("test") {
             @Override
-            public Download fetch(URI url, Path target) {
+            public Download fetch(URI url, Path target, Listener listener) {
                 throw new AssertionError("downloaded");
             }
         };
         List<Engine.Result> results = run(catalog(null, "Example Corp"), never, Authenticodes.none(), installs("Tool", "2.0", 0));
         assertThat(results.getFirst().status()).isEqualTo(Engine.Status.SKIPPED);
         assertThat(results.getFirst().detail()).isEqualTo("up to date");
+    }
+
+    @Test
+    void eventsForTheWindowAndCancelling() throws Exception {
+        byte[] content = "msi bytes".getBytes(StandardCharsets.UTF_8);
+        Path tmp = Files.write(work.resolve("x"), content);
+        Catalog catalog = catalog(Downloader.sha256(tmp), null);
+        List<String> events = new ArrayList<>();
+        Progress recorder = new Progress() {
+            @Override public void line(String text) { }
+            @Override public void phase(dev.inicia.catalog.App app, Phase phase) { events.add(phase.name()); }
+            @Override public void downloaded(dev.inicia.catalog.App app, long bytes, long total) { events.add(bytes + "/" + total); }
+            @Override public void finished(Engine.Result result) { events.add(result.status() + " " + result.detail()); }
+        };
+        List<Step> steps = Planner.plan(catalog.apps(), installed, Arch.X64, false);
+        new Engine(downloads(content), Authenticodes.none(), installs("Tool", "2.0", 0), () -> List.copyOf(installed), recorder, work)
+                .run(steps);
+        assertThat(events).containsExactly("DOWNLOADING", "9/9", "CHECKING", "INSTALLING", "INSTALLED installed 2.0");
+
+        events.clear();
+        installed.clear();
+        Engine engine = new Engine(downloads(content), Authenticodes.none(), installs("Tool", "2.0", 0),
+                () -> List.copyOf(installed), recorder, work);
+        engine.cancel();
+        engine.run(steps);
+        assertThat(events).containsExactly("SKIPPED cancelled");
     }
 
     @Test
