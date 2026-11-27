@@ -45,9 +45,54 @@ public class Downloader {
         return fetch(url, target, (bytes, total) -> { });
     }
 
+    /** A download that trying again won't fix: plain http, a redirect off https, a 4xx answer. */
+    static final class Refused extends IOException {
+        Refused(String message) {
+            super(message);
+        }
+    }
+
+    interface Attempt<T> {
+        T run() throws IOException, InterruptedException;
+    }
+
+    static final int ATTEMPTS = 3;
+
+    /**
+     * Runs {@code attempt} until it works, {@link #ATTEMPTS} times at most, waiting a little longer
+     * each time. Mirror networks (LibreOffice's, SourceForge's) send each try to a mirror of their
+     * choosing, and the odd one is down or has a broken certificate; a {@link Refused} download
+     * isn't tried again.
+     */
+    static <T> T withRetries(Attempt<T> attempt, java.util.function.LongConsumer sleep)
+            throws IOException, InterruptedException {
+        for (int i = 1; ; i++) {
+            try {
+                return attempt.run();
+            } catch (Refused e) {
+                throw e;
+            } catch (IOException e) {
+                if (i == ATTEMPTS) {
+                    throw new IOException(e.getMessage() + " (tried " + ATTEMPTS + " times)", e);
+                }
+                sleep.accept(2000L * i);
+            }
+        }
+    }
+
     public Download fetch(URI url, Path target, Listener listener) throws IOException, InterruptedException {
+        return withRetries(() -> fetchOnce(url, target, listener), ms -> {
+            try {
+                Thread.sleep(ms);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+    }
+
+    private Download fetchOnce(URI url, Path target, Listener listener) throws IOException, InterruptedException {
         if (!"https".equalsIgnoreCase(url.getScheme())) {
-            throw new IOException("refusing to download over " + url.getScheme() + ": " + url);
+            throw new Refused("refusing to download over " + url.getScheme() + ": " + url);
         }
         HttpRequest request = HttpRequest.newBuilder(url)
                 .header("User-Agent", userAgent)
@@ -57,11 +102,15 @@ public class Downloader {
         HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
         URI from = response.uri();
         try (InputStream body = response.body()) {
-            if (response.statusCode() != 200) {
-                throw new IOException("HTTP " + response.statusCode() + " from " + from.getHost());
+            int status = response.statusCode();
+            if (status >= 400 && status < 500) {
+                throw new Refused("HTTP " + status + " from " + from.getHost());
+            }
+            if (status != 200) {
+                throw new IOException("HTTP " + status + " from " + from.getHost());
             }
             if (!"https".equalsIgnoreCase(from.getScheme())) {
-                throw new IOException("the download was redirected off https, to " + from);
+                throw new Refused("the download was redirected off https, to " + from);
             }
             long total = response.headers().firstValueAsLong("Content-Length").orElse(-1);
             MessageDigest sha = sha256();

@@ -22,6 +22,9 @@ public final class WindowsInstalledApps implements InstalledApps {
             Get-ItemProperty -Path $keys |
               Where-Object { $_.DisplayName -and $_.SystemComponent -ne 1 } |
               ForEach-Object { [string]$_.DisplayName + "`t" + [string]$_.DisplayVersion }
+            # an Uninstall entry that can't be read is skipped (SilentlyContinue), but it still
+            # leaves $? false, and PowerShell would exit with 1: the list above is complete anyway
+            exit 0
             """;
 
     @Override
