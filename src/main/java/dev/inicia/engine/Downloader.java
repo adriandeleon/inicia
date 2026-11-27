@@ -59,6 +59,25 @@ public class Downloader {
     static final int ATTEMPTS = 3;
 
     /**
+     * What went wrong, in words: some network errors (a refused connection, say) come with no
+     * message of their own, so their kind and cause say it instead.
+     */
+    public static String describe(Throwable e) {
+        StringBuilder sb = new StringBuilder();
+        for (Throwable t = e; t != null && sb.length() < 300; t = t.getCause()) {
+            String what = t.getMessage() != null && !t.getMessage().isBlank() ? t.getMessage()
+                    : t.getClass().getSimpleName().replaceAll("(?<=[a-z])(?=[A-Z])", " ").toLowerCase(java.util.Locale.ROOT);
+            if (sb.indexOf(what) < 0) {
+                sb.append(sb.isEmpty() ? "" : ": ").append(what);
+            }
+            if (t.getCause() == t) {
+                break;
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
      * Runs {@code attempt} until it works, {@link #ATTEMPTS} times at most, waiting a little longer
      * each time. Mirror networks (LibreOffice's, SourceForge's) send each try to a mirror of their
      * choosing, and the odd one is down or has a broken certificate; a {@link Refused} download
@@ -73,7 +92,7 @@ public class Downloader {
                 throw e;
             } catch (IOException e) {
                 if (i == ATTEMPTS) {
-                    throw new IOException(e.getMessage() + " (tried " + ATTEMPTS + " times)", e);
+                    throw new IOException(describe(e) + " (tried " + ATTEMPTS + " times)", e);
                 }
                 sleep.accept(2000L * i);
             }

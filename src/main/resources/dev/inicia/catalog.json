@@ -217,7 +217,7 @@
       "name": "jkit",
       "suite": "Vitrina",
       "category": "Programming",
-      "description": "The way to get a JDK (20+ vendors), Maven, Gradle or sbt: jkit installs and switches them; installs for the account that runs inicia",
+      "description": "The way to get Java (a JDK from 20+ vendors), Maven, Gradle or sbt: jkit installs and switches them; installs for the account that runs inicia",
       "homepage": "https://jkit-project.dev",
       "version": "0.6.0",
       "released": "2026-11-27",

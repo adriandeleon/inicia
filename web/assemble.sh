@@ -11,7 +11,8 @@ exe="${1:-$root/target/inicia.exe}"
 
 rm -rf "$out"
 mkdir -p "$out/icons"
-cp "$root"/web/*.html "$root"/web/*.js "$root"/web/*.css "$root"/web/hero.png "$root"/web/news.json "$out/"
+cp "$root"/web/*.html "$root"/web/*.js "$root"/web/*.css "$root"/web/hero.png "$root"/web/news.json "$root"/web/excluded.json "$out/"
+python3 "$root/web/build-pages.py" "$out"
 cp "$root/src/main/resources/dev/inicia/catalog.json" "$out/catalog.json"
 cp "$root"/web/icons/*.svg "$root"/web/icons/*.png "$out/icons/" 2>/dev/null || true
 

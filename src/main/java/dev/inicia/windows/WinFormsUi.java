@@ -100,6 +100,14 @@ public final class WinFormsUi implements AutoCloseable {
         return fromWindow.take();
     }
 
+    /** Puts an answer back at the front, for the next {@link #next} to return. */
+    public void putBack(String answer) {
+        java.util.List<String> rest = new java.util.ArrayList<>();
+        fromWindow.drainTo(rest);
+        fromWindow.add(answer);
+        fromWindow.addAll(rest);
+    }
+
     /** The window's next answer if there is one now, else null. */
     public String poll() {
         return fromWindow.poll();

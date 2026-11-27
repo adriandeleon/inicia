@@ -7,6 +7,7 @@
   <meta name="description" content="How inicia picks, checks and installs Windows apps, and how to add installers of your own.">
   <script src="theme.js"></script>
   <link rel="stylesheet" href="site.css">
+  <link rel="alternate" type="application/atom+xml" title="inicia news" href="feed.xml">
 </head>
 <body>
   <header class="site-header">
@@ -37,6 +38,7 @@
             <li><a href="#cli">From the command line</a></li>
             <li><a href="#own">Installers of your own</a></li>
             <li><a href="#notes">Apps with something to know</a></li>
+            <li><a href="#trouble">Troubleshooting</a></li>
             <li><a href="#limits">What inicia doesn't do</a></li>
             <li><a href="#build">Building inicia</a></li>
           </ol>
@@ -52,10 +54,14 @@
             <strong>Select all</strong> gives <code>inicia_all.exe</code>.</p>
           <p>Run it. Installers need administrator rights, so Windows asks for them; then inicia's
             window shows each app's progress and one bar for the whole run. <strong>Show
-            details</strong> shows everything it does, and <strong>Cancel</strong> stops after the
-            app being installed. When it's done, it says what it installed and what it left alone.</p>
-          <p>A plain <code>inicia.exe</code>, with no apps in its name, opens as a picker: tick
-            apps there and choose <strong>Install</strong>.</p>
+            details</strong> shows everything it does (<strong>Copy details</strong> copies it), and
+            <strong>Cancel</strong> stops after the app being installed. When it's done, it says what
+            it installed and what it left alone; if an app failed, <strong>Retry failed</strong> tries
+            it again and <strong>Open the log folder</strong> shows its download and installer log.
+            The taskbar button shows the progress too, and flashes when it's done.</p>
+          <p>A plain <code>inicia.exe</code>, with no apps in its name, opens as a picker: search,
+            tick apps, see their sizes and which are installed already, and choose
+            <strong>Install</strong>.</p>
           <p>Windows SmartScreen may say it "protected your PC" the first time: inicia's exe isn't
             code-signed yet. Choose <em>More info</em>, then <em>Run anyway</em>.</p>
           <p>The page also gives you the same picks as a command (<strong>Copy command</strong>) or
@@ -191,6 +197,35 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
               <code>sbt</code>) in a new terminal. jkit offers JDKs from 20+ vendors.</li>
           </ul>
 
+          <h2 id="trouble">Troubleshooting</h2>
+          <p>inicia works on <strong>Windows 10 and 11</strong>, x64 and ARM64 (where an app has no
+            ARM64 installer, Windows runs its x64 one). When an app fails, its row says why, and
+            <strong>Retry failed</strong> tries the failed apps again.</p>
+          <table>
+            <thead><tr><th>It says</th><th>What to do</th></tr></thead>
+            <tbody>
+              <tr><td>SHA-256 mismatch</td><td>The file at the publisher's address changed since
+                the catalog was made, or it was damaged on the way. Retry; if it fails again, the
+                catalog needs an update: <a href="https://github.com/adriandeleon/inicia/issues/new">tell us</a>.</td></tr>
+              <tr><td>signed by …, not …<br>signature isn't valid</td><td>The download isn't
+                signed by the publisher the catalog expects. inicia won't run it. Report it.</td></tr>
+              <tr><td>HTTP 404</td><td>The publisher moved the file. The catalog needs an update.</td></tr>
+              <tr><td>tried 3 times</td><td>The network or the publisher's server failed three
+                times in a row. Check the connection and retry.</td></tr>
+              <tr><td>exit code 1618</td><td>Another installation is running (often Windows Update).
+                Wait for it to finish, then retry.</td></tr>
+              <tr><td>exit code 1603 or 1638</td><td>The installer hit an error, or another version
+                is installed that it won't replace. The log folder keeps the installer's log;
+                uninstalling the old version first usually helps.</td></tr>
+              <tr><td>Windows' list of programs doesn't show it</td><td>The installer finished but
+                didn't register the app the way the catalog expects. It's usually installed anyway.</td></tr>
+              <tr><td>Nothing happens after the administrator prompt</td><td>The prompt was declined,
+                so nothing was installed. Run the file again and choose Yes.</td></tr>
+              <tr><td>"Windows protected your PC"</td><td>SmartScreen warns about inicia's exe
+                because it isn't code-signed yet: choose <em>More info</em>, then <em>Run anyway</em>.</td></tr>
+            </tbody>
+          </table>
+
           <h2 id="limits">What inicia doesn't do</h2>
           <ul>
             <li><strong>Microsoft Store apps</strong>, such as WhatsApp and ChatGPT: there's no
@@ -215,7 +250,8 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
   <footer class="site-footer">
     <div class="wrap">
       <p>inicia is free software under the MIT license ·
-        <a href="https://github.com/adriandeleon/inicia">Source on GitHub</a>.
+        <a href="https://github.com/adriandeleon/inicia">Source on GitHub</a> ·
+        <a href="security.html">Security</a> · <a href="apps.html">All apps, without JavaScript</a>.
         App names and logos belong to their owners; inicia downloads each app from its publisher.</p>
     </div>
   </footer>
