@@ -470,7 +470,7 @@
         {
           "arch": "x64",
           "type": "msi",
-          "url": "https://download.documentfoundation.org/libreoffice/stable/26.8.3/win/x86_64/LibreOffice_26.8.3_Win_x86-64.msi",
+          "url": "https://ftp.osuosl.org/pub/tdf/libreoffice/stable/26.8.3/win/x86_64/LibreOffice_26.8.3_Win_x86-64.msi",
           "size": 376311808,
           "sha256": "0e6918c273eabbdbbd800ee0dacbbf130a14c13c2e4cec861b06dd59e015bf94",
           "signer": "The Document Foundation"
@@ -478,7 +478,7 @@
         {
           "arch": "arm64",
           "type": "msi",
-          "url": "https://download.documentfoundation.org/libreoffice/stable/26.8.3/win/aarch64/LibreOffice_26.8.3_Win_aarch64.msi",
+          "url": "https://ftp.osuosl.org/pub/tdf/libreoffice/stable/26.8.3/win/aarch64/LibreOffice_26.8.3_Win_aarch64.msi",
           "size": 362065920,
           "sha256": "8ee2ef81ca4103d3eeb06ca9f4ef0b5cbb83357d21d14a449f767bfb29183158",
           "signer": "The Document Foundation"
