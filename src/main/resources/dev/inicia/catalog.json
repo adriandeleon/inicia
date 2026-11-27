@@ -232,6 +232,46 @@
       ]
     },
     {
+      "id": "temurin-21",
+      "name": "Java 21 (Temurin JDK)",
+      "category": "Programming",
+      "description": "Java 21, a long-term support release: Eclipse Temurin's JDK, on the PATH. For other versions and vendors, and Maven, Gradle or sbt, use jkit",
+      "homepage": "https://adoptium.net/",
+      "version": "21.0.13.1",
+      "released": "2026-11-20",
+      "detect": { "displayName": "^Eclipse Temurin JDK with Hotspot 21\\." },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.13.1%2B2/OpenJDK21U-jdk_x64_windows_hotspot_21.0.13.1_2.msi",
+          "size": 179687424,
+          "sha256": "24742e4539f122f0427e33b195c96c93a5369da1f5da95f642825ce3813ff815",
+          "signer": "Eclipse Foundation"
+        }
+      ]
+    },
+    {
+      "id": "temurin-25",
+      "name": "Java 25 (Temurin JDK)",
+      "category": "Programming",
+      "description": "Java 25, a long-term support release: Eclipse Temurin's JDK, on the PATH. For other versions and vendors, and Maven, Gradle or sbt, use jkit",
+      "homepage": "https://adoptium.net/",
+      "version": "25.0.5.1",
+      "released": "2026-11-20",
+      "detect": { "displayName": "^Eclipse Temurin JDK with Hotspot 25\\." },
+      "installers": [
+        {
+          "arch": "x64",
+          "type": "msi",
+          "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5.1%2B2/OpenJDK25U-jdk_x64_windows_hotspot_25.0.5.1_2.msi",
+          "size": 116097024,
+          "sha256": "26599896b3fba3e3017c2e823a3fbb286a8a7b8a76f7dd05069e1a731f514513",
+          "signer": "Eclipse Foundation"
+        }
+      ]
+    },
+    {
       "id": "chrome",
       "name": "Google Chrome",
       "category": "Web browsers",

@@ -183,10 +183,12 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
             <li><strong>Python and the .NET SDK</strong> install side by side with other versions,
               as their own installers do.</li>
             <li><strong>VirtualBox</strong> brings the Visual C++ runtime with it.</li>
-            <li><strong>Java, Maven, Gradle and sbt</strong> come through <strong>jkit</strong>:
-              install jkit with inicia, then <code>jkit install jdk@21</code> (or
-              <code>maven</code>, <code>gradle</code>, <code>sbt</code>) in a new terminal. jkit
-              offers JDKs from 20+ vendors and switches between them per project.</li>
+            <li><strong>Java:</strong> the catalog has the two latest long-term support JDKs,
+              Eclipse Temurin 21 and 25, on the PATH (the one installed last comes first). For
+              other versions and vendors, switching between JDKs per project, and Maven, Gradle
+              or sbt, use <strong>jkit</strong>: install it with inicia, then
+              <code>jkit install jdk@21</code> (or <code>maven</code>, <code>gradle</code>,
+              <code>sbt</code>) in a new terminal. jkit offers JDKs from 20+ vendors.</li>
           </ul>
 
           <h2 id="limits">What inicia doesn't do</h2>
