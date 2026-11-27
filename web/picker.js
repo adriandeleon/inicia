@@ -69,6 +69,16 @@ function fileName(tokens) {
   return "inicia_" + tokens.join("_") + ".exe";
 }
 
+/** "Open source · GPL-3.0", "Proprietary" or "Subscription", from the catalog's SPDX id or word. */
+function licenseBadge(license) {
+  const kind = license === "Proprietary" ? "proprietary" : license === "Subscription" ? "subscription" : "open";
+  const text = kind === "open" ? "Open source · " + license.replace(" WITH Classpath-exception-2.0", " + Classpath exception") : license;
+  const title = kind === "open" ? "Open source, under the " + license + " license"
+    : kind === "subscription" ? "Some use needs a paid subscription: see the app's note and website"
+    : "Proprietary: free to use, not open source";
+  return el("span", { class: "license license-" + kind, title }, text);
+}
+
 /** The size of the installer most PCs get: x64's, else the first one listed. */
 function sizeOf(app) {
   const installer = app.installers.find((i) => i.arch === "x64") || app.installers[0];
@@ -107,6 +117,7 @@ function card(app) {
     app.released ? "released " + RELEASED.format(new Date(app.released + "T00:00:00Z")) : null,
     app.installers.map((i) => i.arch).join(" · ")].filter(Boolean).join(" · ");
   const extras = [];
+  if (app.license) extras.push(licenseBadge(app.license));
   if (app.suite) extras.push(el("span", { class: "pill" }, "Part of the " + app.suite + " Suite"));
   if (app.requires && app.requires.length) {
     extras.push(el("span", { class: "app-extra" }, "Also installs " + app.requires.map(nameOf).join(", ")));

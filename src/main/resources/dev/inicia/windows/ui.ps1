@@ -353,6 +353,7 @@ function Show-Picker($m) {
     [void]$item.SubItems.Add([string]$a.installed)
     $about = $a.description
     if ($a.suite) { $about = "$about · Part of the $($a.suite) Suite" }
+    if ($a.license) { $about = "$about · " + $(if ($a.license -in 'Proprietary', 'Subscription') { $a.license } else { "Open source ($($a.license))" }) }
     [void]$item.SubItems.Add($about)
     $item.ToolTipText = $about
     if ($a.size) { $script:sizes[$a.id] = [double]$a.size }

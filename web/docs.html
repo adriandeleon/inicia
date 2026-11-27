@@ -166,6 +166,7 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
             <tbody>
               <tr><td><code>id</code></td><td>Lowercase letters, digits and hyphens. Used on the command line and in exe names. <code>all</code> and names starting with <code>cat-</code> or <code>suite-</code> are taken.</td></tr>
               <tr><td><code>version</code></td><td>What the installers install. Leave it out for a "latest" address: an installed copy is then left alone.</td></tr>
+              <tr><td><code>license</code></td><td>An SPDX id (<code>GPL-3.0</code>, <code>MIT</code>…) for open source, or <code>Proprietary</code>, or <code>Subscription</code> when some use needs a paid plan; shown on the card.</td></tr>
               <tr><td><code>released</code></td><td>When the publisher released that version, <code>YYYY-MM-DD</code>; shown on the card.</td></tr>
               <tr><td><code>detect.displayName</code></td><td>A regular expression for the name in Settings › Apps. By default, the name starts with <code>name</code>.</td></tr>
               <tr><td><code>requires</code></td><td>Ids of apps to install first.</td></tr>

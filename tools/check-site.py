@@ -3,7 +3,7 @@
 
     tools/check-site.py
 
-- every catalog app has an icon in web/icons (an .svg or a .png)
+- every catalog app has an icon in web/icons (an .svg or a .png), and a license
 - every icon belongs to an app in the catalog
 - every app named in web/news.json is in the catalog, and every app in the catalog is in some
   news entry (so the News page tells about every app)
@@ -27,6 +27,10 @@ for app_id in ids:
         problems.append(f"{app_id}: no icon in web/icons (web/fetch-icons.py {app_id}, then look at it)")
 for icon in sorted(icons - set(ids)):
     problems.append(f"web/icons/{icon}: no app with that id")
+
+for app in catalog["apps"]:
+    if not app.get("license"):
+        problems.append(f"{app['id']}: no license (an SPDX id such as GPL-3.0 or MIT, or Proprietary, or Subscription)")
 
 mentioned = set()
 for i, item in enumerate(news):

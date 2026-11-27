@@ -202,6 +202,7 @@ final class GuiCommand implements Callable<Integer> {
                     .put("description", a.description());
             a.version().ifPresent(v -> n.put("version", v));
             a.note().ifPresent(v -> n.put("note", v));
+            a.license().ifPresent(v -> n.put("license", v));
             a.installerFor(Platform.arch()).flatMap(i -> i.size().isPresent()
                     ? java.util.Optional.of(i.size().getAsLong()) : java.util.Optional.empty())
                     .ifPresent(size -> n.put("size", size));

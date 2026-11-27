@@ -73,6 +73,7 @@ inicia install my-tool --catalog my-catalog.json
 | --- | --- |
 | `id` | lowercase letters, digits, hyphens; used on the command line and in exe names. `all`, `cat-…` and `suite-…` are taken |
 | `version` | what the installers install. Leave it out for a "latest" URL: an installed copy is then left alone |
+| `license` | an SPDX id (`GPL-3.0`, `MIT`…) for open source, or `Proprietary`, or `Subscription`; shown on the page |
 | `released` | when the publisher released that version, `YYYY-MM-DD`; shown on the page |
 | `detect.displayName` | a regular expression for the name in Settings > Apps. Default: starts with `name` |
 | `requires` | ids of apps installed first (VirtualBox requires `vcredist`) |
