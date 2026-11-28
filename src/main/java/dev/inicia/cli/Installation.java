@@ -35,7 +35,29 @@ final class Installation {
 
     static Engine engine(Path work, Progress progress) {
         return new Engine(new Downloader("inicia/" + Version.get()), Platform.signatures(),
-                ProcessRunner.system(), Platform.installedApps(), progress, work);
+                runner(), Platform.installedApps(), progress, work);
+    }
+
+    /** The system's runner; on Windows, runAs user goes through a task in the user's session. */
+    static ProcessRunner runner() {
+        ProcessRunner system = ProcessRunner.system();
+        if (!Platform.isWindows()) {
+            return system;
+        }
+        return new ProcessRunner() {
+            @Override
+            public int run(java.util.List<String> command, java.time.Duration timeout)
+                    throws java.io.IOException, InterruptedException {
+                return system.run(command, timeout);
+            }
+
+            @Override
+            public int runAsUser(java.util.List<String> command, java.time.Duration timeout)
+                    throws java.io.IOException, InterruptedException {
+                java.util.OptionalInt code = dev.inicia.windows.UserTask.run(command, timeout);
+                return code.isPresent() ? code.getAsInt() : system.run(command, timeout);
+            }
+        };
     }
 
     /** Deletes the run's folder when nothing failed; a failed run keeps it for its logs. */

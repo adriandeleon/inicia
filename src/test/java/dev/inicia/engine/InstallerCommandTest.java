@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class InstallerCommandTest {
 
     private static Installer installer(InstallerType type, String... args) {
-        return new Installer(Arch.X64, type, URI.create("https://e.com/x"), Optional.of("0".repeat(64)), Optional.empty(), List.of(args), java.util.OptionalLong.empty());
+        return new Installer(Arch.X64, type, URI.create("https://e.com/x"), Optional.of("0".repeat(64)), Optional.empty(), List.of(args), java.util.OptionalLong.empty(), false);
     }
 
     @Test

@@ -84,6 +84,7 @@ inicia install my-tool --catalog my-catalog.json
 | `sha256` | the file's hash. Required unless `signer` is given |
 | `signer` | the Authenticode certificate's CN or O; the signature must also be valid and trusted |
 | `args` | extra arguments after the type's own |
+| `runAs` | `user`: run the installer as the signed-in user, without administrator rights, for installers that refuse to run elevated (Spotify's) |
 | `size` | the download's size in bytes; shown on the page, and the progress total when the server doesn't say |
 
 Every `url` must be https, and redirects are never followed to plain http.

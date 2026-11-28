@@ -16,9 +16,12 @@ import java.util.Optional;
  * @param args   arguments after the type's own silent ones
  * @param size   the download's size in bytes, when the catalog gives it: shown on the site, and the
  *               total for progress when the server doesn't say
+ * @param asUser run it as the signed-in user, without administrator rights ("runAs": "user"):
+ *               some installers refuse to run elevated, such as Spotify's
  */
 public record Installer(Arch arch, InstallerType type, URI url, Optional<String> sha256,
-                        Optional<String> signer, List<String> args, java.util.OptionalLong size) {
+                        Optional<String> signer, List<String> args, java.util.OptionalLong size,
+                        boolean asUser) {
 
     public Installer {
         args = List.copyOf(args);

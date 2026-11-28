@@ -360,16 +360,26 @@
       "name": "Spotify",
       "category": "Media",
       "license": "Proprietary",
-      "description": "Music and podcast streaming; always the latest release",
+      "description": "Music and podcast streaming; always the latest release. Installs for the signed-in user",
       "homepage": "https://www.spotify.com/download/windows/",
       "installers": [
         {
           "arch": "x64",
           "type": "exe",
-          "url": "https://download.scdn.co/SpotifyFullSetup.exe",
-          "size": 105290384,
+          "url": "https://download.scdn.co/SpotifyFullSetupX64.exe",
+          "size": 161498592,
           "signer": "Spotify AB",
-          "args": ["/silent"]
+          "args": ["/silent"],
+          "runAs": "user"
+        },
+        {
+          "arch": "arm64",
+          "type": "exe",
+          "url": "https://download.scdn.co/SpotifyFullSetupARM64.exe",
+          "size": 146255600,
+          "signer": "Spotify AB",
+          "args": ["/silent"],
+          "runAs": "user"
         }
       ]
     },

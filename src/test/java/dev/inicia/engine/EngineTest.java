@@ -166,6 +166,30 @@ class EngineTest {
     }
 
     @Test
+    void anInstallerThatRefusesAdminRightsRunsAsTheUser() throws Exception {
+        byte[] content = "exe".getBytes(StandardCharsets.UTF_8);
+        Catalog catalog = CatalogReader.read("t", """
+                { "catalog": 1, "apps": [ { "id": "tool", "name": "Tool", "version": "2.0",
+                  "installers": [ { "arch": "x64", "type": "exe", "url": "https://example.com/tool.exe",
+                    "signer": "Example Corp", "args": ["/silent"], "runAs": "user" } ] } ] }
+                """);
+        List<String> how = new ArrayList<>();
+        ProcessRunner runner = new ProcessRunner() {
+            @Override public int run(List<String> command, java.time.Duration t) { how.add("admin"); return 0; }
+            @Override public int runAsUser(List<String> command, java.time.Duration t) {
+                how.add("user " + command.getLast());
+                installed.add(new InstalledApp("Tool", "2.0"));
+                return 0;
+            }
+        };
+        SignatureCheck good = file -> new SignatureCheck.Result(true, "CN=Example Corp", "Valid");
+        List<Engine.Result> results = run(catalog, downloads(content), good, runner);
+        assertThat(how).containsExactly("user /silent");
+        assertThat(results.getFirst().status()).isEqualTo(Engine.Status.INSTALLED);
+        assertThat(output.toString(StandardCharsets.UTF_8)).contains("installing (exe, silent, as the signed-in user)");
+    }
+
+    @Test
     void sizes() {
         assertThat(Engine.size(512 * 1024)).isEqualTo("512 KB");
         assertThat(Engine.size(1_659_704)).isEqualTo("1.6 MB");

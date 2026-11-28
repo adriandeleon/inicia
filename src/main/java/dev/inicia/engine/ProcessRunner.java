@@ -11,6 +11,14 @@ public interface ProcessRunner {
     /** @return the exit code */
     int run(List<String> command, Duration timeout) throws IOException, InterruptedException;
 
+    /**
+     * Runs it as the signed-in user, without administrator rights, for installers that refuse to
+     * run elevated. Where there's no such user to run it as, it runs the usual way.
+     */
+    default int runAsUser(List<String> command, Duration timeout) throws IOException, InterruptedException {
+        return run(command, timeout);
+    }
+
     /** The real thing: no window output is kept, since silent installers print nothing useful. */
     static ProcessRunner system() {
         return (command, timeout) -> {
