@@ -33,7 +33,7 @@ public final class CatalogReader {
     private static final Set<String> TOP_KEYS = Set.of("catalog", "apps");
     private static final Set<String> APP_KEYS = Set.of(
             "id", "name", "category", "description", "homepage", "version", "detect", "installers",
-            "note", "requires", "suite", "released");
+            "note", "requires", "suite", "released", "license");
     private static final Set<String> DETECT_KEYS = Set.of("displayName");
     private static final Set<String> INSTALLER_KEYS = Set.of("arch", "type", "url", "sha256", "signer", "args", "size");
 
@@ -134,6 +134,7 @@ public final class CatalogReader {
         Pattern detect = detect(node.get("detect"), at + ".detect", name);
         Optional<String> note = Optional.ofNullable(text(node, "note", at, false));
         Optional<String> suite = Optional.ofNullable(text(node, "suite", at, false));
+        Optional<String> license = Optional.ofNullable(text(node, "license", at, false));
         Optional<java.time.LocalDate> released = Optional.empty();
         String releasedText = text(node, "released", at, false);
         if (releasedText != null) {
@@ -179,7 +180,7 @@ public final class CatalogReader {
         if (problems.size() > before) {
             return null;
         }
-        return new App(id, name, category, description, homepage, version, detect, installers, note, requires, suite, released);
+        return new App(id, name, category, description, homepage, version, detect, installers, note, requires, suite, released, license);
     }
 
     private Pattern detect(JsonNode node, String at, String name) {

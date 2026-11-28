@@ -1,0 +1,132 @@
+name: Catalog updates
+
+# Daily, and by hand: looks for new versions of the catalog's pinned apps (tools/update-catalog.py,
+# sources in tools/sources.json). When there are some, it downloads and hashes each new installer,
+# updates catalog.json and news.json on the catalog-updates branch, and opens (or refreshes) a pull
+# request from it. Then it installs the updated apps on Windows with inicia built from that branch,
+# which checks every hash and signer for real, comments on the pull request with how it went, and
+# starts CI on the branch. Nothing reaches the site until the pull request is merged.
+#
+# Opening the pull request needs Settings > Actions > General > "Allow GitHub Actions to create and
+# approve pull requests". A pull request opened with this workflow's token doesn't start other
+# workflows by itself, which is why CI is started here.
+
+on:
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-updates
+  cancel-in-progress: false
+
+jobs:
+  find:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    outputs:
+      changed: ${{ steps.update.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Look for new versions
+        id: update
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          pip install --quiet pyyaml==6.0.2
+          tools/update-catalog.py --write --summary "$RUNNER_TEMP/summary.md" --changed "$RUNNER_TEMP/changed.txt"
+          echo "problems=$?" >> "$GITHUB_OUTPUT"
+          echo "changed=$(xargs < "$RUNNER_TEMP/changed.txt")" >> "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or refresh the pull request
+        if: steps.update.outputs.changed != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHANGED: ${{ steps.update.outputs.changed }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c catalog-updates
+          git commit -q -a -m "Update $CHANGED" -m "$(cat "$RUNNER_TEMP/summary.md")"
+          git push --force origin catalog-updates
+          {
+            echo "New versions found by the daily catalog update. Each installer was downloaded and"
+            echo "hashed, and its SHA-256 matches the one its publisher (or winget) lists."
+            echo
+            cat "$RUNNER_TEMP/summary.md"
+            echo
+            echo "The same workflow installs these apps on Windows with inicia from this branch and"
+            echo "comments here with the result; CI runs on the branch too."
+          } > "$RUNNER_TEMP/body.md"
+          if [ "$(gh pr view catalog-updates --json state --jq .state 2>/dev/null)" = OPEN ]; then
+            gh pr edit catalog-updates --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr create --base main --head catalog-updates --title "Catalog updates" --body-file "$RUNNER_TEMP/body.md"
+          fi
+          gh workflow run ci.yml --ref catalog-updates
+
+      - name: Fail if a source had a problem
+        if: steps.update.outputs.problems != '0'
+        run: |
+          echo "::error::tools/update-catalog.py reported problems: see the summary"
+          exit 1
+
+  install:
+    needs: find
+    if: needs.find.outputs.changed != ''
+    runs-on: windows-2025
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: catalog-updates
+          persist-credentials: false
+
+      - name: Build inicia.exe
+        uses: ./.github/actions/build-exe
+
+      - name: Install the updated apps
+        shell: pwsh
+        env:
+          CHANGED: ${{ needs.find.outputs.changed }}
+        run: |
+          $ids = $env:CHANGED -split ' '
+          $log = "$env:RUNNER_TEMP\install.log"
+          & target\inicia.exe install @ids --force --quiet --log $log
+          $code = $LASTEXITCODE
+          Get-Content $log
+          $status = & target\inicia.exe status @ids | Out-String
+          $status
+          if ($code -ne 0) { Write-Output "::error::inicia install exited with $code"; exit 1 }
+          exit 0
+
+      - name: Comment on the pull request
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ job.status }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ "$RESULT" = success ]; then
+            msg="Installed the updated apps on Windows with inicia from this branch: every download matched its SHA-256 and signer, and installed silently. ([run]($RUN))"
+          else
+            msg="Installing the updated apps on Windows failed: see the [run]($RUN) for the log."
+          fi
+          gh pr comment catalog-updates --repo "$GITHUB_REPOSITORY" --body "$msg" || true

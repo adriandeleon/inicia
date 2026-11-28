@@ -42,7 +42,9 @@ for cat in sorted(categories):
         version = a.get("version", "always the latest")
         note = f'<br><span class="app-extra warn">{e(a["note"])}</span>' if a.get("note") else ""
         home = f' · <a href="{e(a["homepage"])}">website</a>' if a.get("homepage") else ""
-        rows.append(f'      <li><strong>{e(a["name"])}</strong> {e(version)}: {e(a.get("description", ""))}'
+        lic = a.get("license", "")
+        lic = "" if not lic else f' ({e(lic if lic in ("Proprietary", "Subscription") else "open source, " + lic)})'
+        rows.append(f'      <li><strong>{e(a["name"])}</strong> {e(version)}{lic}: {e(a.get("description", ""))}'
                     f'{note}<br>{link(a["id"], "Download the installer for " + a["name"])}{home}</li>')
     parts.append(f'    <h2 id="{slug(cat)}">{e(cat)}</h2>\n'
                  f'    <p>{link("cat-" + slug(cat), "Download one installer for all " + str(len(apps)) + " " + cat + " apps")}</p>\n'

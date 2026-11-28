@@ -21,11 +21,13 @@ import java.util.regex.Pattern;
  * @param suite       the family of apps this one belongs to ({@code Vitrina}), shown on the site
  * @param released    when the publisher released this version (YYYY-MM-DD); empty when unknown
  *                    or for a "latest" download
+ * @param license     an SPDX license id (GPL-3.0, MIT…) for open source, else Proprietary or
+ *                    Subscription; shown on the site and in the picker
  */
 public record App(String id, String name, String category, String description, String homepage,
                   Optional<String> version, Pattern detect, List<Installer> installers,
                   Optional<String> note, List<String> requires, Optional<String> suite,
-                  Optional<java.time.LocalDate> released) {
+                  Optional<java.time.LocalDate> released, Optional<String> license) {
 
     public App {
         installers = List.copyOf(installers);

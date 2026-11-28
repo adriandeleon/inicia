@@ -73,6 +73,7 @@ inicia install my-tool --catalog my-catalog.json
 | --- | --- |
 | `id` | lowercase letters, digits, hyphens; used on the command line and in exe names. `all`, `cat-…` and `suite-…` are taken |
 | `version` | what the installers install. Leave it out for a "latest" URL: an installed copy is then left alone |
+| `license` | an SPDX id (`GPL-3.0`, `MIT`…) for open source, or `Proprietary`, or `Subscription`; shown on the page |
 | `released` | when the publisher released that version, `YYYY-MM-DD`; shown on the page |
 | `detect.displayName` | a regular expression for the name in Settings > Apps. Default: starts with `name` |
 | `requires` | ids of apps installed first (VirtualBox requires `vcredist`) |
@@ -142,6 +143,14 @@ needs only DLLs that ship with Windows 10 and 11.
 - `pages.yml`, on every push to main: builds the exe and publishes the website, with the exe the
   download buttons serve, on GitHub Pages (https://adriandeleon.github.io/inicia/). The
   repository's Pages source must be set to GitHub Actions.
+- `catalog-updates.yml`, daily: `tools/update-catalog.py` looks for new versions of every pinned
+  app (where to look is in `tools/sources.json`: GitHub releases, winget's manifests, or
+  Adoptium's API), downloads and hashes each new installer (its SHA-256 must match the one the
+  source publishes), updates `catalog.json` and `news.json` on the `catalog-updates` branch and
+  opens a pull request. It then installs the updated apps on Windows with inicia from that branch
+  and comments with the result. Merging it publishes the new versions. Opening the pull request
+  needs Settings > Actions > General > "Allow GitHub Actions to create and approve pull requests".
+  A new pinned app needs an entry in `tools/sources.json`.
 - `catalog-links.yml`, weekly and when the catalog changes: every installer still answers at its
   address, and pinned ones are still the size the catalog says (`tools/check-links.py`).
 

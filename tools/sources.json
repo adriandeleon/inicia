@@ -1,0 +1,36 @@
+{
+  "_about": "Where tools/update-catalog.py looks for new versions of each pinned app. github: the repository's latest release, its tag giving the version and an asset per architecture; winget: the newest manifest in microsoft/winget-pkgs, the installer for each architecture picked by its address; adoptium: Eclipse Adoptium's API for a Temurin JDK. version: a regex whose group 1 is the version as the catalog writes it. detect: a displayName template, {version} filled in. Apps that always download the latest release have no entry: there's nothing to update.",
+
+  "7zip": { "github": "ip7z/7zip", "tag": "^(\\d+\\.\\d+)$", "assets": { "x64": "^7z\\d+-x64\\.exe$", "arm64": "^7z\\d+-arm64\\.exe$" } },
+  "notepad-plus-plus": { "github": "notepad-plus-plus/notepad-plus-plus", "tag": "^v([\\d.]+)$", "assets": { "x64": "^npp\\.[\\d.]+\\.Installer\\.x64\\.exe$" } },
+  "git": { "github": "git-for-windows/git", "tag": "^v(\\d+\\.\\d+\\.\\d+)\\.windows\\.\\d+$", "assets": { "x64": "^Git-[\\d.]+-64-bit\\.exe$" } },
+  "peazip": { "github": "peazip/PeaZip", "tag": "^([\\d.]+)$", "assets": { "x64": "^peazip-[\\d.]+\\.WIN64\\.exe$" } },
+  "editora": { "github": "adriandeleon/Editora", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
+  "termina": { "github": "adriandeleon/Termina", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
+  "torrenta": { "github": "adriandeleon/torrenta", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
+  "mirada": { "github": "adriandeleon/Mirada", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
+  "nux": { "github": "adriandeleon/nux", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
+  "modula": { "github": "adriandeleon/Modula", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
+  "jkit": { "github": "adriandeleon/jkit", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
+
+  "temurin-21": { "adoptium": 21 },
+  "temurin-25": { "adoptium": 25 },
+
+  "putty": { "winget": "PuTTY.PuTTY", "version": "^(\\d+\\.\\d+)", "urls": { "x64": "/w64/putty-64bit-[\\d.]+-installer\\.msi$" } },
+  "vlc": { "winget": "VideoLAN.VLC", "urls": { "x64": "-win64\\.exe$" } },
+  "dotnet-sdk": { "winget": "Microsoft.DotNet.SDK.10", "urls": { "x64": "\\.exe$", "arm64": "\\.exe$" },
+                  "detect": "(?i)^Microsoft \\.NET SDK {version} \\((x64|arm64)\\)" },
+  "python": { "winget": "Python.Python.3.15", "urls": { "x64": "-amd64\\.exe$", "arm64": "-arm64\\.exe$" },
+              "detect": "^Python {version} \\((64-bit|ARM64)\\)" },
+  "nodejs": { "winget": "OpenJS.NodeJS.LTS", "urls": { "x64": "-x64\\.msi$", "arm64": "-arm64\\.msi$" } },
+  "dropbox": { "winget": "Dropbox.Dropbox", "urls": { "x64": "Enterprise%20Installer\\.x64\\.msi$" } },
+  "libreoffice": { "winget": "TheDocumentFoundation.LibreOffice", "version": "^(\\d+\\.\\d+\\.\\d+)",
+                   "urls": { "x64": "_Win_x86-64\\.msi$", "arm64": "_Win_aarch64\\.msi$" },
+                   "rewrite": ["https://download.documentfoundation.org/libreoffice/", "https://ftp.osuosl.org/pub/tdf/libreoffice/"] },
+  "sumatrapdf": { "winget": "SumatraPDF.SumatraPDF", "urls": { "x64": "-64-install\\.exe$" } },
+  "virtualbox": { "winget": "Oracle.VirtualBox", "urls": { "x64": "-Win\\.exe$" } },
+  "winscp": { "winget": "WinSCP.WinSCP", "urls": { "x86": "-Setup\\.exe/download$" } },
+  "go": { "winget": "GoLang.Go", "urls": { "x64": "windows-amd64\\.msi$", "arm64": "windows-arm64\\.msi$" } },
+  "rust": { "winget": "Rustlang.Rustup", "urls": { "x64": "/x86_64-pc-windows-msvc/rustup-init\\.exe$", "arm64": "/aarch64-pc-windows-msvc/rustup-init\\.exe$" } },
+  "slack": { "winget": "SlackTechnologies.Slack", "urls": { "x64": "/SlackSetup\\.exe$" } }
+}

@@ -3,7 +3,8 @@ name: Catalog links
 # Weekly, and by hand: every installer in the catalog must still answer at its address, and a
 # pinned one must still be the size the catalog says (a different size means the file changed,
 # and its SHA-256 won't match). A failure here means an app needs a catalog update before people
-# hit a failed install. Nothing is downloaded but headers.
+# hit a failed install. Nothing is downloaded but headers. It also checks that every version
+# source in tools/sources.json still finds the catalog's version, with the same SHA-256.
 
 on:
   schedule:
@@ -13,6 +14,8 @@ on:
     paths:
       - src/main/resources/dev/inicia/catalog.json
       - tools/check-links.py
+      - tools/sources.json
+      - tools/update-catalog.py
 
 permissions:
   contents: read
@@ -29,3 +32,12 @@ jobs:
 
       - name: Check every installer's address
         run: tools/check-links.py
+
+      - name: Check every version source agrees with the catalog
+        # tools/sources.json: each pinned app's newest version at its source must be the catalog's
+        # (or newer, which the daily catalog-updates workflow picks up), with the same SHA-256
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pip install --quiet pyyaml==6.0.2
+          tools/update-catalog.py --check
