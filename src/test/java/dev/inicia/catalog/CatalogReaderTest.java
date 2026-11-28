@@ -147,6 +147,18 @@ class CatalogReaderTest {
     }
 
     @Test
+    void spotifyRunsAsTheSignedInUser() throws Exception {
+        App spotify = CatalogReader.builtIn().app("spotify").orElseThrow();
+        assertThat(spotify.installers()).allMatch(Installer::asUser);
+        assertThat(CatalogReader.builtIn().app("7zip").orElseThrow().installers()).noneMatch(Installer::asUser);
+        assertThatThrownBy(() -> CatalogReader.read("t", """
+                { "catalog": 1, "apps": [ { "id": "a", "name": "A", "installers": [
+                  { "arch": "x64", "type": "nsis", "url": "https://e.com/a.exe", "sha256": "%s", "runAs": "admin" } ] } ] }
+                """.formatted(SHA)))
+                .hasMessageContaining("apps[0].installers[0].runAs: \"admin\" isn't user");
+    }
+
+    @Test
     void byteOrderMarkIsSkipped() throws Exception {
         assertThat(CatalogReader.read("t", "﻿{ \"catalog\": 1, \"apps\": [] }").apps()).isEmpty();
     }

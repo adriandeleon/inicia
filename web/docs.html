@@ -177,6 +177,7 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
               <tr><td><code>sha256</code></td><td>The file's hash. Required unless <code>signer</code> is given.</td></tr>
               <tr><td><code>signer</code></td><td>The signing certificate's name (CN or O).</td></tr>
               <tr><td><code>args</code></td><td>Extra arguments after the type's own silent ones.</td></tr>
+              <tr><td><code>runAs</code></td><td><code>user</code>: run this installer as the signed-in Windows user, without administrator rights, for installers that refuse to run elevated (Spotify's).</td></tr>
               <tr><td><code>size</code></td><td>The download's size in bytes; shown on the card.</td></tr>
             </tbody>
           </table>
@@ -185,8 +186,9 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
           <ul>
             <li><strong>Docker Desktop:</strong> installing it accepts the Docker Subscription
               Service Agreement; larger companies need a paid plan. It also needs WSL 2.</li>
-            <li><strong>Slack and Spotify</strong> install for the Windows account that runs
-              inicia, not for every account on the PC.</li>
+            <li><strong>Slack and Spotify</strong> install for one Windows account, not for every
+              account on the PC. Spotify's installer refuses administrator rights, so inicia runs it
+              as the person signed in to Windows.</li>
             <li><strong>Python and the .NET SDK</strong> install side by side with other versions,
               as their own installers do.</li>
             <li><strong>VirtualBox</strong> brings the Visual C++ runtime with it.</li>

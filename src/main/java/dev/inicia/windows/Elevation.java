@@ -69,7 +69,7 @@ public final class Elevation {
      * Joins arguments into one Windows command line that CommandLineToArgvW (and so the JVM's
      * and native image's argument parsing) splits back into the same arguments.
      */
-    static String commandLine(List<String> args) {
+    public static String commandLine(List<String> args) {
         StringBuilder sb = new StringBuilder();
         for (String arg : args) {
             if (!sb.isEmpty()) {

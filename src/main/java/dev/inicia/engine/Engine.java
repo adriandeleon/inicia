@@ -86,9 +86,11 @@ public final class Engine {
             }
 
             progress.phase(app, Progress.Phase.INSTALLING);
-            progress.line("  installing (" + installer.type().id() + ", silent)");
+            progress.line("  installing (" + installer.type().id() + ", silent"
+                    + (installer.asUser() ? ", as the signed-in user" : "") + ")");
             Path msiLog = installer.type() == InstallerType.MSI ? dir.resolve("msiexec.log") : null;
-            int code = runner.run(InstallerCommand.build(installer, file, msiLog), INSTALL_TIMEOUT);
+            List<String> command = InstallerCommand.build(installer, file, msiLog);
+            int code = installer.asUser() ? runner.runAsUser(command, INSTALL_TIMEOUT) : runner.run(command, INSTALL_TIMEOUT);
             InstallerCommand.Outcome outcome = InstallerCommand.outcome(code);
             if (outcome == InstallerCommand.Outcome.FAILED) {
                 String why = InstallerCommand.explain(code).map(s -> ": " + s).orElse("");

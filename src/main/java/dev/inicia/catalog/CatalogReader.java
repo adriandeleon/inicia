@@ -35,7 +35,7 @@ public final class CatalogReader {
             "id", "name", "category", "description", "homepage", "version", "detect", "installers",
             "note", "requires", "suite", "released", "license");
     private static final Set<String> DETECT_KEYS = Set.of("displayName");
-    private static final Set<String> INSTALLER_KEYS = Set.of("arch", "type", "url", "sha256", "signer", "args", "size");
+    private static final Set<String> INSTALLER_KEYS = Set.of("arch", "type", "url", "sha256", "signer", "args", "size", "runAs");
 
     private static final ObjectMapper JSON = new ObjectMapper();
 
@@ -239,6 +239,15 @@ public final class CatalogReader {
             problems.add(at + ".sha256: must be 64 hexadecimal characters");
         }
         Optional<String> signer = Optional.ofNullable(text(node, "signer", at, false));
+        boolean asUser = false;
+        String runAs = text(node, "runAs", at, false);
+        if (runAs != null) {
+            if (runAs.equals("user")) {
+                asUser = true;
+            } else {
+                problems.add(at + ".runAs: \"" + runAs + "\" isn't user, the only other way to run an installer");
+            }
+        }
         java.util.OptionalLong size = java.util.OptionalLong.empty();
         JsonNode sizeNode = node.get("size");
         if (sizeNode != null) {
@@ -274,7 +283,7 @@ public final class CatalogReader {
         if (problems.size() > before) {
             return null;
         }
-        return new Installer(arch, type, url, sha256, signer, args, size);
+        return new Installer(arch, type, url, sha256, signer, args, size, asUser);
     }
 
     private String text(JsonNode node, String key, String at, boolean required) {
