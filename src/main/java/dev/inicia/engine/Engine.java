@@ -22,26 +22,32 @@ public final class Engine {
     }
 
     private static final Duration INSTALL_TIMEOUT = Duration.ofMinutes(30);
+    private static final long CLOSE_POLL_MILLIS = 1500;
 
     private final Downloader downloader;
     private final SignatureCheck signatures;
     private final ProcessRunner runner;
     private final InstalledApps installedApps;
+    private final RunningApps runningApps;
     private final Progress progress;
     private final Path workDir;
     private volatile boolean cancelled;
 
     public Engine(Downloader downloader, SignatureCheck signatures, ProcessRunner runner,
-                  InstalledApps installedApps, Progress progress, Path workDir) {
+                  InstalledApps installedApps, RunningApps runningApps, Progress progress, Path workDir) {
         this.downloader = downloader;
         this.signatures = signatures;
         this.runner = runner;
         this.installedApps = installedApps;
+        this.runningApps = runningApps;
         this.progress = progress;
         this.workDir = workDir;
     }
 
-    /** Stops before the next app; an installer already running is left to finish. */
+    /**
+     * Stops before the next app, or while waiting for one to be closed; an installer already
+     * running is left to finish.
+     */
     public void cancel() {
         cancelled = true;
     }
@@ -85,6 +91,12 @@ public final class Engine {
                 return failed(app, problem.get());
             }
 
+            Optional<Result> stillOpen = waitUntilClosed(step);
+            if (stillOpen.isPresent()) {
+                Files.deleteIfExists(file);
+                return stillOpen.get();
+            }
+
             progress.phase(app, Progress.Phase.INSTALLING);
             progress.line("  installing (" + installer.type().id() + ", silent"
                     + (installer.asUser() ? ", as the signed-in user" : "") + ")");
@@ -95,7 +107,8 @@ public final class Engine {
             if (outcome == InstallerCommand.Outcome.FAILED) {
                 String why = InstallerCommand.explain(code).map(s -> ": " + s).orElse("");
                 String log = msiLog != null && Files.exists(msiLog) ? " (log: " + msiLog + ")" : "";
-                return failed(app, "the installer exited with code " + code + why + log);
+                String shown = code < 0 ? String.format(Locale.ROOT, "0x%08X", code) : Integer.toString(code);
+                return failed(app, "the installer exited with code " + shown + why + log);
             }
             Files.deleteIfExists(file);
             boolean reboot = outcome == InstallerCommand.Outcome.OK_REBOOT;
@@ -112,6 +125,45 @@ public final class Engine {
         } catch (IOException e) {
             return failed(app, Downloader.describe(e));
         }
+    }
+
+    /**
+     * An update waits for the app to be closed: most installers fail, or quietly need a restart,
+     * when the program they replace is running. The window waits (the person can close it, or
+     * cancel); the console fails the app straight away, since a script has no one to close it.
+     *
+     * @return the app's result when it's not to be installed after all
+     */
+    private Optional<Result> waitUntilClosed(Step step) throws IOException, InterruptedException {
+        App app = step.app();
+        if (app.updatesWhileRunning() || step.installed().isEmpty()) {
+            return Optional.empty();
+        }
+        List<String> folders = Planner.installedEntries(app, installedApps.list()).stream()
+                .map(InstalledApp::location).filter(l -> !l.isBlank()).distinct().toList();
+        if (folders.isEmpty()) {
+            return Optional.empty();
+        }
+        List<String> open = runningApps.runningIn(folders);
+        if (open.isEmpty()) {
+            return Optional.empty();
+        }
+        String which = String.join(", ", open);
+        if (!progress.waitsForClose()) {
+            return Optional.of(failed(app, app.name() + " is open (" + which + "): close it, then run inicia again"));
+        }
+        progress.line("  " + app.name() + " is open (" + which + "): waiting for it to be closed");
+        progress.waitingForClose(app, open);
+        while (!open.isEmpty()) {
+            if (cancelled) {
+                progress.line("  not updated: " + app.name() + " was still open");
+                return Optional.of(new Result(app, Status.SKIPPED, "not updated: it was still open", false));
+            }
+            Thread.sleep(CLOSE_POLL_MILLIS);
+            open = runningApps.runningIn(folders);
+        }
+        progress.line("  " + app.name() + " was closed");
+        return Optional.empty();
     }
 
     private Optional<String> verify(Installer installer, Downloader.Download download)

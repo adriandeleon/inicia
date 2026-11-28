@@ -123,7 +123,7 @@ final class InstallCommand implements Callable<Integer> {
             System.err.println("Nothing to install: name apps (inicia install 7zip vlc) or a list file (-f apps.txt).");
             return 2;
         }
-        Catalog cat = catalog.load();
+        Catalog cat = catalog.load(wanted);
         List<App> apps = CatalogOptions.resolve(cat, wanted);
 
         if (!Platform.isWindows() && !dryRun) {
@@ -174,6 +174,9 @@ final class InstallCommand implements Callable<Integer> {
     private void printPlan(List<Step> steps, List<String> wanted) {
         out.println("inicia " + Version.get() + " · " + steps.size() + (steps.size() == 1 ? " app" : " apps")
                 + " · " + Platform.arch().id());
+        out.println("Apps from " + catalog.source() + ".");
+        Proxies.describe(java.net.URI.create(CatalogOptions.LATEST))
+                .ifPresent(p -> out.println("Downloads go through the proxy server at " + p + "."));
         int idWidth = steps.stream().mapToInt(s -> s.app().id().length()).max().orElse(0);
         int nameWidth = steps.stream().mapToInt(s -> title(s.app()).length()).max().orElse(0);
         for (Step s : steps) {
@@ -201,10 +204,7 @@ final class InstallCommand implements Callable<Integer> {
         List<String> args = new ArrayList<>(List.of("install"));
         args.addAll(wanted);
         // the elevated copy starts in System32: every path it gets must be absolute
-        for (String c : catalog.absolute()) {
-            args.add("--catalog");
-            args.add(c);
-        }
+        args.addAll(catalog.relaunchArgs());
         if (force) {
             args.add("--force");
         }

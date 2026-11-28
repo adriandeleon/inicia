@@ -12,6 +12,11 @@ public enum InstallerType {
     INNO(List.of("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-")),
     /** Nullsoft (NSIS), and installers that take NSIS's /S, such as 7-Zip's. */
     NSIS(List.of("/S")),
+    /**
+     * An MSIX package (Claude, ChatGPT), installed with PowerShell's Add-AppxPackage for the
+     * account that runs inicia. It's never run itself, so it takes no arguments.
+     */
+    MSIX(List.of()),
     /** Anything else: the catalog entry gives every argument. */
     EXE(List.of());
 

@@ -53,11 +53,16 @@ function New-Canvas([int]$size) {
   return @($bmp, $g)
 }
 
-$bmp, $g = New-Canvas 32
-$g.FillEllipse((New-Object System.Drawing.SolidBrush $accent), 2, 2, 28, 28)
-$g.DrawString('i', (New-Object System.Drawing.Font('Segoe UI', 15, [System.Drawing.FontStyle]::Bold)), [System.Drawing.Brushes]::White, 9, 1)
-$g.Dispose()
-$form.Icon = [System.Drawing.Icon]::FromHandle($bmp.GetHicon())
+if ($iniciaIcon) {
+  # inicia's own icon (inicia.ico, sent with this script), every size in it, for the title bar and taskbar
+  $form.Icon = New-Object System.Drawing.Icon((New-Object System.IO.MemoryStream(, [Convert]::FromBase64String($iniciaIcon))))
+} else {
+  $bmp, $g = New-Canvas 32
+  $g.FillEllipse((New-Object System.Drawing.SolidBrush $accent), 2, 2, 28, 28)
+  $g.DrawString('i', (New-Object System.Drawing.Font('Segoe UI', 15, [System.Drawing.FontStyle]::Bold)), [System.Drawing.Brushes]::White, 9, 1)
+  $g.Dispose()
+  $form.Icon = [System.Drawing.Icon]::FromHandle($bmp.GetHicon())
+}
 
 $iconSize = [int][Math]::Round(16 * $scale)
 $images = New-Object System.Windows.Forms.ImageList

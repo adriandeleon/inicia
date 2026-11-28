@@ -20,6 +20,18 @@ public interface Progress {
     default void downloaded(App app, long bytes, long total) {
     }
 
+    /**
+     * Whether an update waits for the app to be closed, rather than failing: the window waits,
+     * since someone is there to close it.
+     */
+    default boolean waitsForClose() {
+        return false;
+    }
+
+    /** The app is open, and its update waits for these programs (vlc.exe) to be closed. */
+    default void waitingForClose(App app, java.util.List<String> programs) {
+    }
+
     /** An app is done with: installed, skipped or failed. */
     default void finished(Engine.Result result) {
     }

@@ -30,6 +30,21 @@ public final class InstallerCommand {
                 cmd.add("/l*v");
                 cmd.add(msiLog.toString());
             }
+        } else if (installer.type() == InstallerType.MSIX) {
+            // Add-AppxPackage, for the account this runs as; the script goes base64-encoded, so no
+            // quoting survives the command line. The exit code is the deployment's HRESULT, which
+            // Windows PowerShell only puts in the message ("Deployment failed with HRESULT: 0x80073D02")
+            String path = file.toString().replace("'", "''");
+            String script = "$ProgressPreference = 'SilentlyContinue'; $ErrorActionPreference = 'Stop'; "
+                    + "try { Add-AppxPackage -Path '" + path + "'; exit 0 } "
+                    + "catch { $h = $_.Exception.HResult; "
+                    + "if ($_.Exception.Message -match 'HRESULT: 0x([0-9A-Fa-f]{8})') { $h = [Convert]::ToInt32($Matches[1], 16) }; "
+                    + "if ($h -eq 0) { $h = 1 }; exit $h }";
+            String root = System.getenv().getOrDefault("SystemRoot", "C:\\Windows");
+            cmd.add(Path.of(root, "System32", "WindowsPowerShell", "v1.0", "powershell.exe").toString());
+            cmd.addAll(List.of("-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-EncodedCommand",
+                    java.util.Base64.getEncoder().encodeToString(script.getBytes(java.nio.charset.StandardCharsets.UTF_16LE))));
+            return cmd;
         } else {
             cmd.add(file.toString());
             cmd.addAll(installer.type().silentArgs());
@@ -57,6 +72,12 @@ public final class InstallerCommand {
             case 1625 -> "a system policy forbids this install";
             case 1638 -> "another version is already installed; uninstall it first";
             case 5 -> "access denied; run inicia as administrator";
+            // Add-AppxPackage's HRESULTs, for an msix package
+            case 0x80073D02 -> "the app is open; close it and try again";
+            case 0x80073D06 -> "a newer version is already installed";
+            case 0x80073CFF -> "a system policy blocks apps from outside the Microsoft Store";
+            case 0x80073CF3 -> "the package conflicts with what's installed, or needs a component that isn't";
+            case 0x80073CF0 -> "the package couldn't be opened";
             default -> null;
         });
     }

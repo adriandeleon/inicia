@@ -34,11 +34,56 @@ public class Downloader {
     private final String userAgent;
 
     public Downloader(String userAgent) {
-        this.client = HttpClient.newBuilder()
+        this(userAgent, Duration.ofSeconds(20));
+    }
+
+    /**
+     * The proxy, if any, is the default ProxySelector's (set up by the command line), and its
+     * password the default Authenticator's.
+     */
+    public Downloader(String userAgent, Duration connectTimeout) {
+        HttpClient.Builder builder = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(Duration.ofSeconds(20))
-                .build();
+                .connectTimeout(connectTimeout);
+        java.net.Authenticator auth = java.net.Authenticator.getDefault();
+        if (auth != null) {
+            builder.authenticator(auth);
+        }
+        this.client = builder.build();
         this.userAgent = userAgent;
+    }
+
+    /**
+     * A small file, read whole, tried once: for the catalog, which mustn't keep a window waiting.
+     *
+     * @param limit the most bytes it may have
+     */
+    public byte[] read(URI url, Duration timeout, int limit) throws IOException, InterruptedException {
+        if (!"https".equalsIgnoreCase(url.getScheme())) {
+            throw new Refused("refusing to download over " + url.getScheme() + ": " + url);
+        }
+        HttpRequest request = HttpRequest.newBuilder(url)
+                .header("User-Agent", userAgent)
+                .timeout(timeout)
+                .GET()
+                .build();
+        HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        try (InputStream body = response.body()) {
+            if (response.statusCode() == 407) {
+                throw new Refused(PROXY_LOGIN);
+            }
+            if (response.statusCode() != 200) {
+                throw new IOException("HTTP " + response.statusCode() + " from " + response.uri().getHost());
+            }
+            if (!"https".equalsIgnoreCase(response.uri().getScheme())) {
+                throw new Refused("redirected off https, to " + response.uri());
+            }
+            byte[] bytes = body.readNBytes(limit + 1);
+            if (bytes.length > limit) {
+                throw new IOException(url + " is larger than " + limit + " bytes");
+            }
+            return bytes;
+        }
     }
 
     public Download fetch(URI url, Path target) throws IOException, InterruptedException {
@@ -57,6 +102,9 @@ public class Downloader {
     }
 
     static final int ATTEMPTS = 3;
+
+    static final String PROXY_LOGIN = "the proxy server wants a user name and password: "
+            + "give them with --proxy http://user:password@host:port, or in INICIA_PROXY";
 
     /**
      * What went wrong, in words: some network errors (a refused connection, say) come with no
@@ -122,6 +170,9 @@ public class Downloader {
         URI from = response.uri();
         try (InputStream body = response.body()) {
             int status = response.statusCode();
+            if (status == 407) {
+                throw new Refused(PROXY_LOGIN);
+            }
             if (status >= 400 && status < 500) {
                 throw new Refused("HTTP " + status + " from " + from.getHost());
             }

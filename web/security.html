@@ -6,12 +6,15 @@
   <title>Security · inicia</title>
   <meta name="description" content="How inicia checks every download before it runs, what it never does, and how to report a problem.">
   <script src="theme.js"></script>
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="site.css">
 </head>
 <body>
   <header class="site-header">
     <div class="wrap header-inner">
-      <a class="wordmark" href="./">inicia</a>
+      <a class="wordmark" href="./"><img src="favicon.svg" alt="" width="28" height="28">inicia</a>
       <nav aria-label="Site">
         <a href="./">Apps</a>
         <a href="news.html">News</a>
@@ -43,6 +46,14 @@
           latest release are checked this way, since their file changes with every release.</li>
       </ul>
 
+      <h2>The catalog it fetches is signed</h2>
+      <p>Each run, inicia fetches the latest catalog from this site, so a saved exe installs
+        current versions. It's only taken when its Ed25519 signature matches the public key built
+        into the exe (the private key exists only as a secret of the site's publishing job), when
+        it's no older than the exe's own catalog, so an old one can't be replayed to roll versions
+        back, and when this inicia can read it. Anything else, and inicia uses the catalog built
+        into it.</p>
+
       <h2>What inicia never does</h2>
       <ul>
         <li>install toolbars, trials or anything you didn't pick: an installer that bundles offers
@@ -62,8 +73,6 @@
       <ul>
         <li><strong>inicia's own exe isn't code-signed yet,</strong> so Windows SmartScreen warns
           the first time it runs.</li>
-        <li><strong>The catalog is built into the exe.</strong> An exe downloaded today installs
-          today's versions; download it again for newer ones.</li>
         <li><strong>Downloads wait in your temporary folder</strong> between the check and the
           install. Another program running as you could, in principle, swap one there.</li>
       </ul>
@@ -82,7 +91,6 @@
         <a href="security.html">Security</a> · <a href="faq.html">FAQ</a> · <a href="apps.html">All apps, without JavaScript</a>.
         App names and logos belong to their owners; inicia downloads each app from its publisher.</p>
       <p class="copyright">© 2026 Adrian De Leon ·
-        <a href="mailto:adrian.deleon@gmail.com">adrian.deleon@gmail.com</a> ·
         <a href="https://adeleon.dev">adeleon.dev</a></p>
     </div>
   </footer>

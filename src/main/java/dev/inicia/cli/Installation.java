@@ -35,7 +35,7 @@ final class Installation {
 
     static Engine engine(Path work, Progress progress) {
         return new Engine(new Downloader("inicia/" + Version.get()), Platform.signatures(),
-                runner(), Platform.installedApps(), progress, work);
+                runner(), Platform.installedApps(), Platform.runningApps(), progress, work);
     }
 
     /** The system's runner; on Windows, runAs user goes through a task in the user's session. */

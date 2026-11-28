@@ -2,6 +2,14 @@
   "resources": [
     { "glob": "dev/inicia/*.json" },
     { "glob": "dev/inicia/*.properties" },
-    { "glob": "dev/inicia/windows/*.ps1" }
-  ]
+    { "glob": "dev/inicia/*.pub" },
+    { "glob": "dev/inicia/windows/*.ps1" },
+    { "glob": "dev/inicia/windows/*.ico" }
+  ],
+  "foreign": {
+    "downcalls": [
+      { "returnType": "jint", "parameterTypes": ["void*", "jint"] },
+      { "returnType": "void*", "parameterTypes": [] }
+    ]
+  }
 }

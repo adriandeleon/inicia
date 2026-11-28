@@ -59,6 +59,12 @@ public final class WinFormsUi implements AutoCloseable {
             }
             script = new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
+        // the icon goes in with the script, as base64: the window has no files of its own
+        try (InputStream in = WinFormsUi.class.getResourceAsStream("/dev/inicia/windows/inicia.ico")) {
+            if (in != null) {
+                script = "$iniciaIcon = '" + Base64.getEncoder().encodeToString(in.readAllBytes()) + "'\n" + script;
+            }
+        }
         // the script itself comes in on stdin, so it never touches the disk (where another
         // program could change it before an elevated inicia runs it) and has no length limit
         String bootstrap = "$s = [Console]::In.ReadLine(); "

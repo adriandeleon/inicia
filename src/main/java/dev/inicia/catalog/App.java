@@ -23,11 +23,14 @@ import java.util.regex.Pattern;
  *                    or for a "latest" download
  * @param license     an SPDX license id (GPL-3.0, MIT…) for open source, else Proprietary or
  *                    Subscription; shown on the site and in the picker
+ * @param updatesWhileRunning its installer updates it while it's open (Chrome, Slack): inicia
+ *                    doesn't ask for it to be closed first
  */
 public record App(String id, String name, String category, String description, String homepage,
                   Optional<String> version, Pattern detect, List<Installer> installers,
                   Optional<String> note, List<String> requires, Optional<String> suite,
-                  Optional<java.time.LocalDate> released, Optional<String> license) {
+                  Optional<java.time.LocalDate> released, Optional<String> license,
+                  boolean updatesWhileRunning) {
 
     public App {
         installers = List.copyOf(installers);

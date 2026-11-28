@@ -83,6 +83,13 @@ a:hover { color: var(--accent-hover); }
   text-decoration: none;
 }
 
+.wordmark img {
+  width: 1.15em;
+  height: 1.15em;
+  margin-right: 0.35em;
+  vertical-align: -0.22em;
+}
+
 .wordmark::after {
   content: "";
   display: inline-block;
