@@ -22,6 +22,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <main.class>dev.inicia.cli.Main</main.class>
     <project.build.outputTimestamp>2026-01-01T00:00:00Z</project.build.outputTimestamp>
+    <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
     <picocli.version>4.7.7</picocli.version>
     <jackson.version>2.23.0</jackson.version>
     <junit.version>6.1.3</junit.version>
@@ -128,6 +129,9 @@
             <manifest>
               <mainClass>${main.class}</mainClass>
             </manifest>
+            <manifestEntries>
+              <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
@@ -136,7 +140,7 @@
 
   <profiles>
     <!--
-      With native, on Windows: link the Visual C++ runtime (vcruntime140.dll, vcruntime140_1.dll)
+      With native, on Windows: link inicia's icon in, and the Visual C++ runtime (vcruntime140.dll, vcruntime140_1.dll)
       into the exe. A fresh Windows doesn't have those DLLs, and inicia is one file that has to
       start on exactly such a PC, so it can't ship them beside it the way a .zip can. The Universal
       C Runtime (the api-ms-win-crt-* imports) stays dynamic: it's part of Windows 10 and 11.
@@ -156,6 +160,8 @@
               <buildArgs combine.children="append">
                 <buildArg>-H:NativeLinkerOption=/NODEFAULTLIB:vcruntime.lib</buildArg>
                 <buildArg>-H:NativeLinkerOption=libvcruntime.lib</buildArg>
+                <!-- inicia's icon, for Explorer and the download: made by tools/make-icons.py -->
+                <buildArg>-H:NativeLinkerOption=${project.basedir}/src/main/windows/inicia.res</buildArg>
               </buildArgs>
             </configuration>
           </plugin>
@@ -193,6 +199,10 @@
                 <!-- the default targets x86-64-v3 (AVX2): keep the exe running on older CPUs -->
                 <buildArg>-march=compatibility</buildArg>
                 <buildArg>--enable-url-protocols=https</buildArg>
+                <!-- the Foreign Function API, for the few Windows calls inicia makes (ConsoleWindow) -->
+                <buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
+                <buildArg>-H:+ForeignAPISupport</buildArg>
+                <buildArg>--enable-native-access=ALL-UNNAMED</buildArg>
               </buildArgs>
             </configuration>
           </plugin>

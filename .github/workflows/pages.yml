@@ -2,7 +2,8 @@ name: Website
 
 # Publishes the website on GitHub Pages on every push to main (and by hand): builds inicia.exe on
 # Windows, assembles the site around it (web/assemble.sh: pages, catalog, icons, generated pages,
-# and the exe the download buttons serve), and deploys it. The exe sits on the same origin as the
+# and the exe the download buttons serve), signs the catalog (tools/sign-catalog.sh, with the
+# CATALOG_SIGNING_KEY secret), and deploys it. The exe sits on the same origin as the
 # pages, which the download attribute's file names need.
 #
 # Pages has to be set to "GitHub Actions" in the repository's settings (Settings > Pages > Source).
@@ -60,6 +61,12 @@ jobs:
           tools/check-site.py
           web/assemble.sh "$RUNNER_TEMP/exe/inicia.exe"
           test -f target/web/inicia.exe
+
+      # catalog.json.sig: what lets an inicia.exe downloaded earlier take today's catalog
+      - name: Sign the catalog
+        env:
+          CATALOG_SIGNING_KEY: ${{ secrets.CATALOG_SIGNING_KEY }}
+        run: tools/sign-catalog.sh target/web/catalog.json
 
       - name: Configure Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

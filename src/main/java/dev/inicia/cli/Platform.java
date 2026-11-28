@@ -3,9 +3,11 @@ package dev.inicia.cli;
 import dev.inicia.catalog.Arch;
 import dev.inicia.engine.InstalledApp;
 import dev.inicia.engine.InstalledApps;
+import dev.inicia.engine.RunningApps;
 import dev.inicia.engine.SignatureCheck;
 import dev.inicia.windows.Authenticode;
 import dev.inicia.windows.WindowsInstalledApps;
+import dev.inicia.windows.WindowsRunningApps;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,6 +33,10 @@ final class Platform {
 
     static List<InstalledApp> installed() throws IOException, InterruptedException {
         return installedApps().list();
+    }
+
+    static RunningApps runningApps() {
+        return isWindows() ? new WindowsRunningApps() : RunningApps.none();
     }
 
     static SignatureCheck signatures() {

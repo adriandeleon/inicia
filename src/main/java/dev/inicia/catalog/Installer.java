@@ -31,9 +31,14 @@ public record Installer(Arch arch, InstallerType type, URI url, Optional<String>
     public String fileName(String appId) {
         String path = url.getPath();
         String last = path == null ? "" : path.substring(path.lastIndexOf('/') + 1);
-        if (last.matches("[A-Za-z0-9._ -]+\\.(exe|msi)")) {
+        String ext = switch (type) {
+            case MSI -> "msi";
+            case MSIX -> "msix";
+            default -> "exe";
+        };
+        if (last.matches("[A-Za-z0-9._ -]+\\." + ext)) {
             return last;
         }
-        return appId + "-setup." + (type == InstallerType.MSI ? "msi" : "exe");
+        return appId + "-setup." + ext;
     }
 }

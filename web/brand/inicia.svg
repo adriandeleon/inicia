@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>inicia</title>
+  <!-- an "i" whose stem is a downward arrow: one download that installs everything -->
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="#0b6e4f"/>
+  <circle cx="32" cy="15.5" r="6" fill="#ffffff"/>
+  <path d="M32 27.5V47" fill="none" stroke="#ffffff" stroke-width="8.5" stroke-linecap="round"/>
+  <path d="M20.5 37.5 32 49 43.5 37.5" fill="none" stroke="#ffffff" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

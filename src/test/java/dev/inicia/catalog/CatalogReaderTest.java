@@ -57,7 +57,7 @@ class CatalogReaderTest {
                         "apps[0].id: \"Bad Id\" must be lowercase letters, digits and hyphens, at most 40",
                         "apps[0].installers[0].url: must be an https:// address",
                         "apps[1].installers[0].arch: \"sparc\" isn't x64, x86 or arm64",
-                        "apps[1].installers[0].type: \"zip\" isn't msi, inno, nsis or exe",
+                        "apps[1].installers[0].type: \"zip\" isn't msi, msix, inno, nsis or exe",
                         "apps[1].installers[0]: needs sha256, signer or both, so the download can be checked",
                         "apps[2].installers[0].args: an exe installer needs the arguments that make it silent",
                         "apps[3].detect.displayName: not a valid regular expression: Unclosed character class",

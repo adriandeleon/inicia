@@ -42,6 +42,11 @@ public final class Planner {
         return new Step(app, older ? Step.Action.UPGRADE : Step.Action.UP_TO_DATE, installer, found);
     }
 
+    /** The installed entries the app's pattern matches. */
+    public static List<InstalledApp> installedEntries(App app, List<InstalledApp> installed) {
+        return installed.stream().filter(e -> app.detect().matcher(e.displayName()).find()).toList();
+    }
+
     /** The highest version among installed entries the app's pattern matches. */
     public static Optional<String> installedVersion(App app, List<InstalledApp> installed) {
         Optional<String> best = Optional.empty();

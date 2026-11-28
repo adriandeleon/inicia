@@ -50,7 +50,7 @@ final class GuiCommand implements Callable<Integer> {
     }
 
     private int show() throws Exception {
-        Catalog cat = catalog.load();
+        Catalog cat = catalog.load(ids);
         List<String> wanted = ids;
         if (wanted.isEmpty()) {
             try (WinFormsUi ui = WinFormsUi.open()) {
@@ -66,10 +66,7 @@ final class GuiCommand implements Callable<Integer> {
         if (!Elevation.isElevated()) {
             List<String> args = new ArrayList<>(List.of("gui"));
             args.addAll(wanted);
-            for (String c : catalog.absolute()) {
-                args.add("--catalog");
-                args.add(c);
-            }
+            args.addAll(catalog.relaunchArgs());
             if (force) {
                 args.add("--force");
             }
@@ -88,6 +85,9 @@ final class GuiCommand implements Callable<Integer> {
 
         try (WinFormsUi ui = WinFormsUi.open()) {
             ui.send(planEvent(steps, toRun));
+            ui.send(WinFormsUi.event("log").put("text", "Apps from " + catalog.source() + "."));
+            Proxies.describe(java.net.URI.create(CatalogOptions.LATEST)).ifPresent(p ->
+                    ui.send(WinFormsUi.event("log").put("text", "Downloads go through the proxy server at " + p + ".")));
             if (toRun == 0) {
                 ui.send(WinFormsUi.event("done").put("title", "Nothing to do")
                         .put("text", (steps.size() == 1 ? "It's" : "All " + steps.size() + " apps are")

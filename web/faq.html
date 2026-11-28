@@ -6,13 +6,16 @@
   <title>FAQ · inicia</title>
   <meta name="description" content="Questions about inicia: cost, safety, administrator rights, updates, missing apps, privacy, and using it at work.">
   <script src="theme.js"></script>
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="site.css">
   <link rel="alternate" type="application/atom+xml" title="inicia news" href="feed.xml">
 </head>
 <body>
   <header class="site-header">
     <div class="wrap header-inner">
-      <a class="wordmark" href="./">inicia</a>
+      <a class="wordmark" href="./"><img src="favicon.svg" alt="" width="28" height="28">inicia</a>
       <nav aria-label="Site">
         <a href="./">Apps</a>
         <a href="news.html">News</a>
@@ -48,9 +51,9 @@
       </details>
       <details>
         <summary>How do I update my apps?</summary>
-        <p>Run the same file again. Apps that are already up to date are skipped; older ones are
-          upgraded to the version the file knows about. For the newest versions, download the file
-          again: the site always has the latest catalog.</p>
+        <p>Run the same file again, even one you downloaded long ago: it fetches the latest
+          catalog from this site (signed, so it can't be tampered with), skips apps that are up to
+          date and upgrades older ones. If an app is open, it asks you to close it first.</p>
       </details>
       <details>
         <summary>Can inicia uninstall apps?</summary>
@@ -90,7 +93,7 @@
         <p>An app goes in when its publisher offers an installer that can be downloaded directly
           and runs silently, without bundled offers. Some apps can't meet that:</p>
         <ul>
-          <li>Microsoft Store only (WhatsApp; ChatGPT and Teams for now);</li>
+          <li>Microsoft Store only (WhatsApp);</li>
           <li>downloads only a web browser can get (FileZilla's expiring links);</li>
           <li>installers that can't run silently, or only in a paid edition (Nmap and Zenmap, Wireshark's capture driver);</li>
           <li>installers that bundle other products.</li>
@@ -105,7 +108,7 @@
         <summary>How does inicia keep up with new versions?</summary>
         <p>Every day, an automatic job checks each app's publisher (and winget's manifests) for a
           new version, downloads it, checks its fingerprint, installs it on a test PC, and proposes
-          the update. Once it's merged, the site's installer has the new version.</p>
+          the update. Once it's merged, every copy of inicia picks it up the next time it runs.</p>
       </details>
       <details>
         <summary>What's the Vitrina Suite?</summary>
@@ -135,7 +138,9 @@
       </details>
       <details>
         <summary>Does it work behind a proxy?</summary>
-        <p>inicia connects directly. Networks that require a proxy server aren't supported yet.</p>
+        <p>Yes. It uses Windows' proxy settings, or the one you name with
+          <code>--proxy host:port</code> or the <code>INICIA_PROXY</code> variable, with a password
+          if the proxy asks for one. <a href="docs.html#proxy">More</a>.</p>
       </details>
       <details>
         <summary>How is inicia different from Ninite or winget?</summary>
@@ -159,7 +164,6 @@
         <a href="security.html">Security</a> · <a href="faq.html">FAQ</a> · <a href="apps.html">All apps, without JavaScript</a>.
         App names and logos belong to their owners; inicia downloads each app from its publisher.</p>
       <p class="copyright">© 2026 Adrian De Leon ·
-        <a href="mailto:adrian.deleon@gmail.com">adrian.deleon@gmail.com</a> ·
         <a href="https://adeleon.dev">adeleon.dev</a></p>
     </div>
   </footer>

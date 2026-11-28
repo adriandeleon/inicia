@@ -6,13 +6,16 @@
   <title>Docs · inicia</title>
   <meta name="description" content="How inicia picks, checks and installs Windows apps, and how to add installers of your own.">
   <script src="theme.js"></script>
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="site.css">
   <link rel="alternate" type="application/atom+xml" title="inicia news" href="feed.xml">
 </head>
 <body>
   <header class="site-header">
     <div class="wrap header-inner">
-      <a class="wordmark" href="./">inicia</a>
+      <a class="wordmark" href="./"><img src="favicon.svg" alt="" width="28" height="28">inicia</a>
       <nav aria-label="Site">
         <a href="./">Apps</a>
         <a href="news.html">News</a>
@@ -74,6 +77,11 @@
 
           <h2 id="run">What happens when it runs</h2>
           <ol>
+            <li><strong>It gets the latest catalog.</strong> inicia fetches the list of apps and
+              versions from this site, and takes it only if its signature checks out (see
+              <a href="#catalog">below</a>). So an exe you downloaded months ago still installs
+              today's versions. Offline, or if anything about it is off, it uses the catalog built
+              into the exe.</li>
             <li><strong>It makes a plan.</strong> inicia reads Windows' list of installed programs
               (the same one Settings › Apps shows) and decides, per app: install, upgrade, or leave
               it alone. Apps another app needs come first, such as the Visual C++ runtime for
@@ -82,6 +90,9 @@
               https only.</li>
             <li><strong>It checks the download</strong> (see below). If the check fails, the
               installer never runs.</li>
+            <li><strong>It waits for the app to be closed</strong> when it's updating one that's
+              open: its row says "Close VLC to update it" until you do (or <strong>Cancel</strong>).
+              Apps that update themselves while open, such as Chrome and Slack, don't wait.</li>
             <li><strong>It runs the installer silently</strong>, with the switches that installer
               takes: no wizard, no offers, no restart.</li>
             <li><strong>It confirms the install</strong> by finding the app in Windows' list again,
@@ -106,6 +117,24 @@
           </ul>
           <p>Addresses must be https, and a redirect to plain http is refused.</p>
 
+          <h2 id="catalog">The catalog, kept current</h2>
+          <p>Each time it runs, inicia fetches <code>catalog.json</code> from this site with its
+            <code>catalog.json.sig</code>: an Ed25519 signature made when the site is published,
+            with a key only the site's publishing job holds. The exe has the matching public key
+            built in. It takes the fetched catalog only when the signature matches, the catalog is
+            no older than the one built into the exe (so an old catalog can't be replayed to roll
+            versions back), and it has every app you picked. Otherwise it says why in its log and
+            uses its built-in catalog. <code>--built-in-catalog</code> skips the fetch.</p>
+
+          <h2 id="proxy">Behind a proxy</h2>
+          <p>inicia uses Windows' proxy settings (Settings › Network &amp; internet › Proxy),
+            including a setup script (PAC). To name a proxy yourself, use
+            <code>--proxy host:port</code> or set <code>INICIA_PROXY</code> (or
+            <code>HTTPS_PROXY</code>), with <code>NO_PROXY</code> for addresses to reach directly.
+            A proxy that asks for a password takes it in the address:
+            <code>http://user:password@proxy:8080</code> (Basic authentication; Windows sign-in
+            proxies, NTLM and Kerberos, aren't supported).</p>
+
           <h2 id="updates">Updates</h2>
           <p>Run the same file again any time. Apps older than the catalog's version are
             upgraded; up-to-date ones are skipped without downloading anything. Apps the catalog
@@ -122,7 +151,10 @@ inicia install -f apps.txt           # ids from a file; # starts a comment
 inicia install 7zip --dry-run        # show the plan, change nothing
 inicia install git --force           # reinstall even if it's there
 inicia install all --quiet --log C:\logs\inicia.log   # for scripts: no output, exit code 0 when all went well
-inicia status                        # catalog apps installed here, and which are out of date</code></pre>
+inicia status                        # catalog apps installed here, and which are out of date
+inicia install vlc --proxy proxy.corp:3128   # through this proxy server
+inicia install vlc --built-in-catalog         # the exe's own catalog, nothing fetched
+inicia check --signed https://adriandeleon.github.io/inicia/catalog.json   # the site's catalog and its signature</code></pre>
           <p>From an administrator terminal it installs right there; otherwise Windows asks for
             administrator rights and the installs run in a window of their own (with
             <code>--quiet</code>, a hidden one, and the exit code is passed back).</p>
@@ -172,9 +204,10 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
               <tr><td><code>detect.displayName</code></td><td>A regular expression for the name in Settings › Apps. By default, the name starts with <code>name</code>.</td></tr>
               <tr><td><code>requires</code></td><td>Ids of apps to install first.</td></tr>
               <tr><td><code>note</code></td><td>Something to know before installing; shown on the card and in the plan.</td></tr>
+              <tr><td><code>updatesWhileRunning</code></td><td><code>true</code> when its installer updates it while it's open (Chrome): inicia doesn't wait for it to be closed.</td></tr>
               <tr><td><code>suite</code></td><td>The family of apps it belongs to; the card says "Part of the … Suite", and <code>suite-&lt;name&gt;</code> selects them all.</td></tr>
               <tr><td><code>arch</code></td><td><code>x64</code>, <code>x86</code> or <code>arm64</code>. ARM64 PCs fall back to x64, then x86.</td></tr>
-              <tr><td><code>type</code></td><td><code>msi</code>, <code>inno</code> (Inno Setup), <code>nsis</code> (<code>/S</code>), or <code>exe</code> with its own <code>args</code>.</td></tr>
+              <tr><td><code>type</code></td><td><code>msi</code>, <code>msix</code> (installed with Add-AppxPackage, for the account that runs inicia), <code>inno</code> (Inno Setup), <code>nsis</code> (<code>/S</code>), or <code>exe</code> with its own <code>args</code>.</td></tr>
               <tr><td><code>sha256</code></td><td>The file's hash. Required unless <code>signer</code> is given.</td></tr>
               <tr><td><code>signer</code></td><td>The signing certificate's name (CN or O).</td></tr>
               <tr><td><code>args</code></td><td>Extra arguments after the type's own silent ones.</td></tr>
@@ -188,8 +221,12 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
             <li><strong>Docker Desktop:</strong> installing it accepts the Docker Subscription
               Service Agreement; larger companies need a paid plan. It also needs WSL 2.</li>
             <li><strong>Slack and Spotify</strong> install for one Windows account, not for every
-              account on the PC. Spotify's installer refuses administrator rights, so inicia runs it
+              account on the PC. Their installers refuse administrator rights, so inicia runs them
               as the person signed in to Windows.</li>
+            <li><strong>Claude and ChatGPT</strong> are MSIX packages: they install for the
+              Windows account that runs inicia, and need Windows 10 version 2004 or later.</li>
+            <li><strong>Yaak</strong> is free for personal use; using it at work needs a paid
+              license.</li>
             <li><strong>Python and the .NET SDK</strong> install side by side with other versions,
               as their own installers do.</li>
             <li><strong>VirtualBox</strong> brings the Visual C++ runtime with it.</li>
@@ -223,6 +260,13 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
                 uninstalling the old version first usually helps.</td></tr>
               <tr><td>Windows' list of programs doesn't show it</td><td>The installer finished but
                 didn't register the app the way the catalog expects. It's usually installed anyway.</td></tr>
+              <tr><td>Close … to update it</td><td>The app is open, and its installer would fail or
+                need a restart. Close it (its row lists the programs), and inicia carries on. From
+                the command line, close it and run inicia again.</td></tr>
+              <tr><td>exit code 0x80073D02</td><td>An MSIX app (Claude, ChatGPT) was still open.
+                Close it and retry.</td></tr>
+              <tr><td>the proxy server wants a user name and password</td><td>Give them in the
+                proxy's address: <code>--proxy http://user:password@proxy:8080</code>.</td></tr>
               <tr><td>Nothing happens after the administrator prompt</td><td>The prompt was declined,
                 so nothing was installed. Run the file again and choose Yes.</td></tr>
               <tr><td>"Windows protected your PC"</td><td>SmartScreen warns about inicia's exe
@@ -232,10 +276,10 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
 
           <h2 id="limits">What inicia doesn't do</h2>
           <ul>
-            <li><strong>Microsoft Store apps</strong>, such as WhatsApp and ChatGPT: there's no
-              installer file to download and check.</li>
-            <li><strong>Downloads only a web browser can get</strong>, such as Claude Desktop's (behind bot
-              protection) and FileZilla's (links that expire): inicia doesn't get around that.</li>
+            <li><strong>Microsoft Store-only apps</strong>, such as WhatsApp: there's no installer
+              file to download and check.</li>
+            <li><strong>Downloads only a web browser can get</strong>, such as FileZilla's (links
+              that expire): inicia doesn't get around that.</li>
             <li><strong>Installers that can't run silently</strong>, such as Nmap and Zenmap's free
               installer: silent install is part of the paid Nmap OEM edition.</li>
             <li><strong>Uninstalling.</strong> Use Settings › Apps.</li>
@@ -258,7 +302,6 @@ inicia install my-tool --catalog my-catalog.json</code></pre>
         <a href="security.html">Security</a> · <a href="faq.html">FAQ</a> · <a href="apps.html">All apps, without JavaScript</a>.
         App names and logos belong to their owners; inicia downloads each app from its publisher.</p>
       <p class="copyright">© 2026 Adrian De Leon ·
-        <a href="mailto:adrian.deleon@gmail.com">adrian.deleon@gmail.com</a> ·
         <a href="https://adeleon.dev">adeleon.dev</a></p>
     </div>
   </footer>

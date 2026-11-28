@@ -53,6 +53,18 @@ final class WindowProgress implements Progress {
     }
 
     @Override
+    public boolean waitsForClose() {
+        return true;
+    }
+
+    @Override
+    public void waitingForClose(App app, List<String> programs) {
+        app(app, "Close " + app.name() + " to update it (" + String.join(", ", programs) + ")", "note");
+        activity = "Waiting for " + app.name() + " to be closed…";
+        overall();
+    }
+
+    @Override
     public void downloaded(App app, long bytes, long total) {
         if (total > 0) {
             long percent = bytes * 100 / total;
@@ -88,6 +100,7 @@ final class WindowProgress implements Progress {
             case INSTALLED -> (app.version().map(v -> "Installed " + v).orElse(capitalize(result.detail())))
                     + (result.rebootNeeded() ? " · restart to finish" : "");
             case SKIPPED -> result.detail().equals("cancelled") ? "Cancelled"
+                    : result.detail().startsWith("not updated") ? capitalize(result.detail())
                     : app.version().map(v -> "Up to date (" + v + ")").orElse("Already installed");
         };
         app(app, status, state);

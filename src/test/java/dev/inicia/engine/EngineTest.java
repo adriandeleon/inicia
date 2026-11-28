@@ -62,7 +62,7 @@ class EngineTest {
     private List<Engine.Result> run(Catalog catalog, Downloader downloader, SignatureCheck signatures,
                                     ProcessRunner runner) throws Exception {
         List<Step> steps = Planner.plan(catalog.apps(), installed, Arch.X64, false);
-        return new Engine(downloader, signatures, runner, () -> List.copyOf(installed), Progress.printing(out), work).run(steps);
+        return new Engine(downloader, signatures, runner, () -> List.copyOf(installed), RunningApps.none(), Progress.printing(out), work).run(steps);
     }
 
     @Test
@@ -152,14 +152,14 @@ class EngineTest {
             @Override public void finished(Engine.Result result) { events.add(result.status() + " " + result.detail()); }
         };
         List<Step> steps = Planner.plan(catalog.apps(), installed, Arch.X64, false);
-        new Engine(downloads(content), Authenticodes.none(), installs("Tool", "2.0", 0), () -> List.copyOf(installed), recorder, work)
+        new Engine(downloads(content), Authenticodes.none(), installs("Tool", "2.0", 0), () -> List.copyOf(installed), RunningApps.none(), recorder, work)
                 .run(steps);
         assertThat(events).containsExactly("DOWNLOADING", "9/9", "CHECKING", "INSTALLING", "INSTALLED installed 2.0");
 
         events.clear();
         installed.clear();
         Engine engine = new Engine(downloads(content), Authenticodes.none(), installs("Tool", "2.0", 0),
-                () -> List.copyOf(installed), recorder, work);
+                () -> List.copyOf(installed), RunningApps.none(), recorder, work);
         engine.cancel();
         engine.run(steps);
         assertThat(events).containsExactly("SKIPPED cancelled");
@@ -202,5 +202,77 @@ class EngineTest {
                 throw new AssertionError("no signer in this catalog, so no signature check");
             };
         }
+    }
+
+    @Test
+    void anUpdateWaitsForTheAppToBeClosedInTheWindowAndFailsInTheConsole() throws Exception {
+        Catalog catalog = catalog(null, "Example Corp");
+        SignatureCheck good = file -> new SignatureCheck.Result(true, "CN=Example Corp", "Valid");
+        installed.add(new InstalledApp("Tool", "1.0", "C:\\Program Files\\Tool"));
+        List<Step> steps = Planner.plan(catalog.apps(), installed, Arch.X64, false);
+        List<List<String>> asked = new ArrayList<>();
+
+        // the console: no one to close it, so the app fails and its installer never runs
+        RunningApps open = folders -> {
+            asked.add(folders);
+            return List.of("tool.exe");
+        };
+        List<Engine.Result> results = new Engine(downloads(new byte[]{1}), good, installs("Tool", "2.0", 0),
+                () -> List.copyOf(installed), open, Progress.printing(out), work).run(steps);
+        assertThat(results.getFirst().status()).isEqualTo(Engine.Status.FAILED);
+        assertThat(results.getFirst().detail()).isEqualTo("Tool is open (tool.exe): close it, then run inicia again");
+        assertThat(asked).containsExactly(List.of("C:\\Program Files\\Tool"));
+        assertThat(ran).isEmpty();
+
+        // the window: it waits until it's closed (the second look), then installs
+        List<String> events = new ArrayList<>();
+        Progress window = new Progress() {
+            @Override public void line(String text) { }
+            @Override public boolean waitsForClose() { return true; }
+            @Override public void waitingForClose(dev.inicia.catalog.App app, List<String> programs) { events.add("waiting " + programs); }
+        };
+        int[] looks = {0};
+        RunningApps closedLater = folders -> ++looks[0] == 1 ? List.of("tool.exe") : List.of();
+        results = new Engine(downloads(new byte[]{1}), good, installs("Tool", "2.0", 0),
+                () -> List.copyOf(installed), closedLater, window, work).run(steps);
+        assertThat(events).containsExactly("waiting [tool.exe]");
+        assertThat(results.getFirst().status()).isEqualTo(Engine.Status.INSTALLED);
+        assertThat(ran).hasSize(1);
+    }
+
+    @Test
+    void anAppThatUpdatesWhileRunningIsntWaitedFor() throws Exception {
+        Catalog catalog = CatalogReader.read("t", """
+                { "catalog": 1, "apps": [ { "id": "tool", "name": "Tool", "version": "2.0", "updatesWhileRunning": true,
+                  "installers": [ { "arch": "x64", "type": "msi", "url": "https://example.com/tool-2.0.msi", "signer": "Example Corp" } ] } ] }
+                """);
+        SignatureCheck good = file -> new SignatureCheck.Result(true, "CN=Example Corp", "Valid");
+        installed.add(new InstalledApp("Tool", "1.0", "C:\\Program Files\\Tool"));
+        List<Step> steps = Planner.plan(catalog.apps(), installed, Arch.X64, false);
+        RunningApps open = folders -> List.of("tool.exe");
+        List<Engine.Result> results = new Engine(downloads(new byte[]{1}), good, installs("Tool", "2.0", 0),
+                () -> List.copyOf(installed), open, Progress.printing(out), work).run(steps);
+        assertThat(results.getFirst().status()).isEqualTo(Engine.Status.INSTALLED);
+    }
+
+    @Test
+    void anMsixPackageIsAddedThroughPowerShell() throws Exception {
+        Catalog catalog = CatalogReader.read("t", """
+                { "catalog": 1, "apps": [ { "id": "tool", "name": "Tool", "version": "2.0",
+                  "installers": [ { "arch": "x64", "type": "msix", "url": "https://example.com/Tool-x64.msix", "signer": "Example Corp" } ] } ] }
+                """);
+        SignatureCheck good = file -> new SignatureCheck.Result(true, "CN=Example Corp", "Valid");
+        List<Engine.Result> results = run(catalog, downloads(new byte[]{1}), good, installs("Tool", "2.0", 0));
+        assertThat(results.getFirst().status()).isEqualTo(Engine.Status.INSTALLED);
+        List<String> cmd = ran.getFirst();
+        assertThat(cmd.getFirst()).endsWith("powershell.exe");
+        assertThat(cmd).contains("-NoProfile", "-EncodedCommand");
+        String script = new String(java.util.Base64.getDecoder().decode(cmd.getLast()), StandardCharsets.UTF_16LE);
+        assertThat(script).contains("Add-AppxPackage -Path '" + work.resolve("tool/Tool-x64.msix") + "'");
+
+        ran.clear();
+        installed.clear();
+        results = run(catalog, downloads(new byte[]{1}), good, installs("Tool", "2.0", 0x80073D02));
+        assertThat(results.getFirst().detail()).isEqualTo("the installer exited with code 0x80073D02: the app is open; close it and try again");
     }
 }

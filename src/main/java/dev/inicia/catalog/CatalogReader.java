@@ -33,7 +33,7 @@ public final class CatalogReader {
     private static final Set<String> TOP_KEYS = Set.of("catalog", "apps");
     private static final Set<String> APP_KEYS = Set.of(
             "id", "name", "category", "description", "homepage", "version", "detect", "installers",
-            "note", "requires", "suite", "released", "license");
+            "note", "requires", "suite", "released", "license", "updatesWhileRunning");
     private static final Set<String> DETECT_KEYS = Set.of("displayName");
     private static final Set<String> INSTALLER_KEYS = Set.of("arch", "type", "url", "sha256", "signer", "args", "size", "runAs");
 
@@ -144,6 +144,15 @@ public final class CatalogReader {
                 problems.add(at + ".released: \"" + releasedText + "\" must be a date, YYYY-MM-DD");
             }
         }
+        boolean updatesWhileRunning = false;
+        JsonNode running = node.get("updatesWhileRunning");
+        if (running != null) {
+            if (running.isBoolean()) {
+                updatesWhileRunning = running.booleanValue();
+            } else {
+                problems.add(at + ".updatesWhileRunning: must be true or false");
+            }
+        }
         List<String> requires = new ArrayList<>();
         JsonNode requiresNode = node.get("requires");
         if (requiresNode != null) {
@@ -180,7 +189,8 @@ public final class CatalogReader {
         if (problems.size() > before) {
             return null;
         }
-        return new App(id, name, category, description, homepage, version, detect, installers, note, requires, suite, released, license);
+        return new App(id, name, category, description, homepage, version, detect, installers, note, requires, suite, released, license,
+                updatesWhileRunning);
     }
 
     private Pattern detect(JsonNode node, String at, String name) {
@@ -227,7 +237,7 @@ public final class CatalogReader {
         if (typeText != null) {
             type = InstallerType.parse(typeText).orElse(null);
             if (type == null) {
-                problems.add(at + ".type: \"" + typeText + "\" isn't msi, inno, nsis or exe");
+                problems.add(at + ".type: \"" + typeText + "\" isn't msi, msix, inno, nsis or exe");
             }
         }
         String urlText = text(node, "url", at, true);
@@ -276,6 +286,9 @@ public final class CatalogReader {
                     }
                 }
             }
+        }
+        if (type == InstallerType.MSIX && !args.isEmpty()) {
+            problems.add(at + ".args: an msix package takes no arguments: PowerShell installs it");
         }
         if (type == InstallerType.EXE && args.isEmpty()) {
             problems.add(at + ".args: an exe installer needs the arguments that make it silent");

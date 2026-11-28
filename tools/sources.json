@@ -11,6 +11,7 @@
   "mirada": { "github": "adriandeleon/Mirada", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
   "nux": { "github": "adriandeleon/nux", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
   "modula": { "github": "adriandeleon/Modula", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
+  "yaak": { "github": "mountain-loop/yaak", "tag": "^v([\\d.]+)$", "assets": { "x64": "_x64-setup-machine\\.exe$", "arm64": "_arm64-setup-machine\\.exe$" } },
   "jkit": { "github": "adriandeleon/jkit", "tag": "^v([\\d.]+)$", "assets": { "x64": "-windows-x64\\.msi$" } },
 
   "temurin-21": { "adoptium": 21 },
@@ -32,5 +33,7 @@
   "winscp": { "winget": "WinSCP.WinSCP", "urls": { "x86": "-Setup\\.exe/download$" } },
   "go": { "winget": "GoLang.Go", "urls": { "x64": "windows-amd64\\.msi$", "arm64": "windows-arm64\\.msi$" } },
   "rust": { "winget": "Rustlang.Rustup", "urls": { "x64": "/x86_64-pc-windows-msvc/rustup-init\\.exe$", "arm64": "/aarch64-pc-windows-msvc/rustup-init\\.exe$" } },
-  "slack": { "winget": "SlackTechnologies.Slack", "urls": { "x64": "/SlackSetup\\.exe$" } }
+  "slack": { "winget": "SlackTechnologies.Slack", "urls": { "x64": "/SlackSetup\\.exe$" } },
+  "claude": { "winget": "Anthropic.Claude", "urls": { "x64": "/x64/[\\d.]+/Claude-[0-9a-f]+\\.msix$", "arm64": "/arm64/[\\d.]+/Claude-[0-9a-f]+\\.msix$" } },
+  "chatgpt": { "winget": "OpenAI.ChatGPT", "urls": { "x64": "/ChatGPT-x64\\.msix$", "arm64": "/ChatGPT-arm64\\.msix$" } }
 }

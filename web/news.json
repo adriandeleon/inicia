@@ -1,5 +1,21 @@
 [
   {
+    "date": "2026-11-28",
+    "title": "Claude, ChatGPT and Yaak",
+    "text": "Anthropic's Claude and OpenAI's ChatGPT desktop apps, installed from their publishers' MSIX packages, now that inicia installs MSIX. Both install for the Windows account that runs inicia. Yaak, an API client for REST, GraphQL, gRPC and WebSockets, is free for personal use and needs a paid license at work.",
+    "apps": [
+      "claude",
+      "chatgpt",
+      "yaak"
+    ]
+  },
+  {
+    "date": "2026-11-28",
+    "title": "A saved inicia installs today's versions",
+    "text": "Each time it runs, inicia now fetches the latest catalog from this site, and uses it only when its signature matches the key built into the exe; offline, it uses its own. It also works behind a proxy: Windows' settings, or --proxy. Updating an app that's open now waits for you to close it instead of failing, and Slack, like Spotify, installs as the signed-in user. And inicia has an icon.",
+    "apps": []
+  },
+  {
     "date": "2026-11-27",
     "title": "Java 21 and Java 25",
     "text": "The two latest long-term support JDKs, Eclipse Temurin 21 and 25, each checked against Adoptium's SHA-256 and the Eclipse Foundation's signature. To switch between JDKs, get other vendors or versions, or Maven, Gradle and sbt, install jkit.",

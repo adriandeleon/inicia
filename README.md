@@ -27,6 +27,8 @@ inicia install all --quiet --log C:\logs\inicia.log   # no output; exit code 0 w
 inicia status                            # catalog apps installed here, and which are out of date
 inicia_7zip_vlc.exe --silent             # a downloaded exe's apps, with no window and no output
 inicia_7zip_vlc.exe --cli                # the same, in the console
+inicia install vlc --proxy proxy.corp:3128   # through a proxy (else INICIA_PROXY, HTTPS_PROXY, or Windows' settings)
+inicia install vlc --built-in-catalog    # the exe's own catalog, without fetching the latest
 ```
 
 Exit codes: 0 all went well, 1 an app failed, 2 nothing to do with what was asked, 3 no
@@ -37,6 +39,27 @@ apps when double-clicked: that's what the picker page hands out. A whole categor
 `cat-<category>`, a suite as `suite-<suite>` and the whole catalog as `all` (`inicia_all.exe`),
 which keeps the name short. A browser's ` (1)` is ignored. Installing needs administrator
 rights: inicia asks Windows for them (the UAC prompt) before its window shows the installs.
+
+An app that's open when inicia would update it is waited for in the window ("Close VLC to
+update it") and fails with that message on the command line; apps marked `updatesWhileRunning`
+(Chrome, Slack, Dropbox) aren't waited for.
+
+## The catalog it fetches
+
+Each run, inicia fetches `catalog.json` and `catalog.json.sig` from the website and uses them in
+place of its built-in catalog, so a saved exe installs current versions. The `.sig` file holds
+the publication time and an Ed25519 signature over `inicia-catalog 1\n<time>\n` plus the
+catalog's bytes (`SignedCatalog.java`). The exe takes the catalog only when the signature matches
+the public key built into it (`src/main/resources/dev/inicia/catalog-key.pub`), when it was
+published no earlier than the exe was built (no rolling back by replaying an old one), when it
+can read it, and when it has every app asked for; otherwise it logs why and uses its own.
+
+- `tools/catalog-key.sh` makes the key pair: the private key goes straight into the
+  `CATALOG_SIGNING_KEY` repository secret, the public one into `catalog-key.pub` to commit. Run it
+  again to replace a lost key; exes built before that keep to their built-in catalogs.
+- `tools/sign-catalog.sh`, in `pages.yml`, signs the catalog the site serves, after checking the
+  secret matches `catalog-key.pub`. Without the secret it signs nothing.
+- `inicia check --signed <file|url>` checks a catalog and its signature as inicia would.
 
 ## Your own installers
 
@@ -78,9 +101,10 @@ inicia install my-tool --catalog my-catalog.json
 | `detect.displayName` | a regular expression for the name in Settings > Apps. Default: starts with `name` |
 | `requires` | ids of apps installed first (VirtualBox requires `vcredist`) |
 | `note` | something to know before installing, such as a license it accepts; shown on the page and in the plan |
+| `updatesWhileRunning` | `true` when its installer updates it while it's open: inicia doesn't wait for it to be closed |
 | `suite` | the family of apps it belongs to (`Vitrina`); the page shows "Part of the Vitrina Suite", and `suite-vitrina` selects them all |
 | `arch` | `x64`, `x86` or `arm64`. ARM64 machines fall back to x64, then x86 |
-| `type` | `msi` (msiexec `/qn /norestart`), `inno` (`/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-`), `nsis` (`/S`), or `exe` with your own `args` |
+| `type` | `msi` (msiexec `/qn /norestart`), `msix` (PowerShell's Add-AppxPackage, for the account that runs inicia; no `args`), `inno` (`/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-`), `nsis` (`/S`), or `exe` with your own `args` |
 | `sha256` | the file's hash. Required unless `signer` is given |
 | `signer` | the Authenticode certificate's CN or O; the signature must also be valid and trusted |
 | `args` | extra arguments after the type's own |
@@ -131,9 +155,13 @@ The exe has to be built on Windows: native-image can't cross-compile. With Graal
 .\mvnw.cmd -Pnative package        # target\inicia.exe
 ```
 
-On Windows the build links the Visual C++ runtime into the exe (the `windows-static-vcruntime`
+On Windows the build links inicia's icon (`src/main/windows/inicia.res`) and the Visual C++ runtime into the exe (the `windows-static-vcruntime`
 profile), so `inicia.exe` starts on a fresh Windows, which doesn't have `vcruntime140.dll`. It
 needs only DLLs that ship with Windows 10 and 11.
+
+The icon is `web/brand/inicia.svg`; `tools/make-icons.py` (needs Chrome or Chromium, and
+ImageMagick) makes the site's favicons, the window's `inicia.ico` and the exe's `inicia.res` from
+it.
 
 ## CI
 
@@ -142,7 +170,7 @@ needs only DLLs that ship with Windows 10 and 11.
   PuTTY and, as `inicia_peazip.exe --silent`, PeaZip on the runner), the site's data
   (`tools/check-site.py`: every app has an icon and a News entry), and actionlint.
 - `pages.yml`, on every push to main: builds the exe and publishes the website, with the exe the
-  download buttons serve, on GitHub Pages (https://adriandeleon.github.io/inicia/). The
+  download buttons serve and the signed catalog, on GitHub Pages (https://adriandeleon.github.io/inicia/). The
   repository's Pages source must be set to GitHub Actions.
 - `catalog-updates.yml`, daily: `tools/update-catalog.py` looks for new versions of every pinned
   app (where to look is in `tools/sources.json`: GitHub releases, winget's manifests, or
@@ -159,9 +187,8 @@ needs only DLLs that ship with Windows 10 and 11.
 
 - Code-signing the exe: unsigned and downloaded from the web, it gets SmartScreen's "Windows
   protected your PC" warning.
-- Catalog signing: a remote `--catalog` is trusted as far as its https host is.
+- A remote `--catalog` of your own is trusted as far as its https host is; only the site's
+  catalog is signed.
 - Downloads go to the user's temp folder, which unelevated programs of the same user can write
   to between the check and the run; they should go to a folder only administrators can write.
-- An icon for the exe. A double-click also shows a console window for a moment, because inicia is
-  a console program that starts its window from a hidden copy of itself.
-- Uninstall, and keeping the catalog's versions current.
+- Uninstall.

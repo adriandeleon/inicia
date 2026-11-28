@@ -1,6 +1,7 @@
 package dev.inicia.cli;
 
 import dev.inicia.engine.Selection;
+import dev.inicia.windows.ConsoleWindow;
 import dev.inicia.windows.Elevation;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -47,6 +48,8 @@ public final class Main implements Callable<Integer> {
     }
 
     static int run(String... args) {
+        // the environment's or Windows' proxy, for every command; --proxy, where given, wins later
+        Proxies.apply(null);
         CommandLine cli = new CommandLine(new Main());
         cli.setExecutionExceptionHandler((e, cmd, parsed) -> {
             cmd.getErr().println("inicia: " + (e.getMessage() == null ? e.toString() : e.getMessage()));
@@ -80,6 +83,7 @@ public final class Main implements Callable<Integer> {
         // The window. This console exists only because inicia is a console program: start a copy
         // with its console hidden, elevated straight away when there are apps to install (the
         // picker runs without, and asks once it knows there's something to do), and end here.
+        ConsoleWindow.hideIfOwn();
         List<String> args = new ArrayList<>(List.of("gui"));
         args.addAll(ids);
         boolean elevate = !ids.isEmpty() && !Elevation.isElevated();
