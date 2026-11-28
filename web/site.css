@@ -646,3 +646,17 @@ th { font-weight: 620; }
 .license-open { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
 .license-subscription { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
 .apps.compact .license { display: none; }
+
+.site-footer p { margin: 0.3rem 0; }
+.site-footer .copyright { color: var(--muted); }
+
+/* FAQ: one question per disclosure */
+.faq details {
+  border-bottom: 1px solid var(--line);
+  padding: 0.85rem 0;
+}
+.faq details:first-of-type { border-top: 1px solid var(--line); }
+.faq summary { cursor: pointer; font-weight: 620; font-size: 1.02rem; }
+.faq summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.faq details p, .faq details ul { margin: 0.6rem 0 0.2rem; }
+.faq h2 { margin-top: 2.2rem; }

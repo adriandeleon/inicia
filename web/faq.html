@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FAQ · inicia</title>
+  <meta name="description" content="Questions about inicia: cost, safety, administrator rights, updates, missing apps, privacy, and using it at work.">
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="site.css">
+  <link rel="alternate" type="application/atom+xml" title="inicia news" href="feed.xml">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="wordmark" href="./">inicia</a>
+      <nav aria-label="Site">
+        <a href="./">Apps</a>
+        <a href="news.html">News</a>
+        <a href="docs.html">Docs</a>
+        <a href="faq.html" aria-current="page">FAQ</a>
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to dark theme">Dark</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap prose faq">
+      <h1>Frequently asked questions</h1>
+      <p class="lede">Something not answered here? <a href="https://github.com/adriandeleon/inicia/issues/new">Ask on GitHub</a>.</p>
+
+      <h2>The basics</h2>
+      <details>
+        <summary>Is inicia free?</summary>
+        <p>Yes. inicia is free and open source, under the MIT license. The apps it installs keep
+          their own licenses: each card says whether an app is open source, proprietary, or needs a
+          subscription for some uses.</p>
+      </details>
+      <details>
+        <summary>Which versions of Windows does it work on?</summary>
+        <p>Windows 10 and 11, on x64 and ARM64 PCs. Where an app has no ARM64 installer, Windows
+          runs its x64 one.</p>
+      </details>
+      <details>
+        <summary>Where do the apps get installed?</summary>
+        <p>Where their own installers put them, as if you had clicked through each one with the
+          default answers: usually <code>C:\Program Files</code>. A few apps, such as Spotify and
+          Slack, install for your Windows account only.</p>
+      </details>
+      <details>
+        <summary>How do I update my apps?</summary>
+        <p>Run the same file again. Apps that are already up to date are skipped; older ones are
+          upgraded to the version the file knows about. For the newest versions, download the file
+          again: the site always has the latest catalog.</p>
+      </details>
+      <details>
+        <summary>Can inicia uninstall apps?</summary>
+        <p>No. Use Settings &gt; Apps in Windows; everything inicia installs shows up there.</p>
+      </details>
+
+      <h2>Safety and privacy</h2>
+      <details>
+        <summary>Is it safe?</summary>
+        <p>Every download comes from the app's publisher over https, and is checked against the
+          publisher's SHA-256 or code signature before it runs; anything that doesn't match is
+          deleted and never run. inicia never installs toolbars, trials or anything else you
+          didn't pick. <a href="security.html">More about how it checks downloads</a>.</p>
+      </details>
+      <details>
+        <summary>Why does Windows say it "protected your PC"?</summary>
+        <p>That's SmartScreen. It warns about programs it hasn't seen signed by a known publisher,
+          and inicia's own exe isn't code-signed yet. Choose <em>More info</em>, then <em>Run
+          anyway</em>. The apps it installs are checked either way.</p>
+      </details>
+      <details>
+        <summary>Why does it need administrator rights?</summary>
+        <p>Most installers need them to install into Program Files, so inicia asks Windows once,
+          at the start, instead of every installer asking. Installers that refuse administrator
+          rights (Spotify's) are run as you, without them.</p>
+      </details>
+      <details>
+        <summary>Does inicia collect any data?</summary>
+        <p>No. It has no telemetry and sends nothing about you or your PC anywhere. It only
+          downloads installers, from their publishers, who see those downloads as they would from
+          your browser. Your picks on this site stay in your browser.</p>
+      </details>
+
+      <h2>Apps</h2>
+      <details>
+        <summary>Why isn't my favorite app here?</summary>
+        <p>An app goes in when its publisher offers an installer that can be downloaded directly
+          and runs silently, without bundled offers. Some apps can't meet that:</p>
+        <ul>
+          <li>Microsoft Store only (WhatsApp; ChatGPT and Teams for now);</li>
+          <li>downloads only a web browser can get (FileZilla's expiring links);</li>
+          <li>installers that can't run silently, or only in a paid edition (Nmap and Zenmap, Wireshark's capture driver);</li>
+          <li>installers that bundle other products.</li>
+        </ul>
+        <p>The search on the <a href="./">Apps page</a> tells you when an app is one of these.</p>
+      </details>
+      <details>
+        <summary>Can I suggest an app?</summary>
+        <p>Yes: <a href="https://github.com/adriandeleon/inicia/issues/new?labels=app+suggestion&amp;title=Suggest+an+app%3A+">suggest it on GitHub</a>.</p>
+      </details>
+      <details>
+        <summary>How does inicia keep up with new versions?</summary>
+        <p>Every day, an automatic job checks each app's publisher (and winget's manifests) for a
+          new version, downloads it, checks its fingerprint, installs it on a test PC, and proposes
+          the update. Once it's merged, the site's installer has the new version.</p>
+      </details>
+      <details>
+        <summary>What's the Vitrina Suite?</summary>
+        <p>Apps by inicia's author: Editora, Termina, Torrenta, Mirada, Nux, Modula and jkit. Their
+          cards say "Part of the Vitrina Suite", and you can pick them all at once.</p>
+      </details>
+      <details>
+        <summary>How do I get Java, Maven, Gradle or sbt?</summary>
+        <p>The catalog has Java 21 and Java 25 (Eclipse Temurin). For other versions and vendors,
+          and for Maven, Gradle and sbt, install jkit, then run <code>jkit install jdk@21</code>
+          (or <code>maven</code>, <code>gradle</code>, <code>sbt</code>) in a new terminal.</p>
+      </details>
+
+      <h2>Work and scripts</h2>
+      <details>
+        <summary>Can I use inicia at work, or in scripts?</summary>
+        <p>Yes. It has a command line for administrators and deployment tools:
+          <code>inicia install 7zip vlc --quiet --log install.log</code>, or
+          <code>inicia_7zip_vlc.exe --silent</code>, with exit codes that say how it went. Some apps
+          have their own terms for business use (Docker Desktop needs a paid plan in larger
+          companies). See <a href="docs.html#cli">the docs</a>.</p>
+      </details>
+      <details>
+        <summary>Can I add our own in-house apps?</summary>
+        <p>Yes: write a catalog file for them and pass it with <code>--catalog</code>.
+          <a href="docs.html#own">How</a>.</p>
+      </details>
+      <details>
+        <summary>Does it work behind a proxy?</summary>
+        <p>inicia connects directly. Networks that require a proxy server aren't supported yet.</p>
+      </details>
+      <details>
+        <summary>How is inicia different from Ninite or winget?</summary>
+        <p>Like Ninite, you pick apps on a web page and get one installer that sets them all up
+          silently. Unlike it, inicia is open source, has a free command line, and takes catalogs of
+          your own apps. winget is Microsoft's package manager, run from a terminal; inicia uses
+          winget's public manifests as one of the places it learns about new versions.</p>
+      </details>
+      <details>
+        <summary>Who makes inicia?</summary>
+        <p>Adrian De Leon (<a href="https://adeleon.dev">adeleon.dev</a>). The source is on
+          <a href="https://github.com/adriandeleon/inicia">GitHub</a>.</p>
+      </details>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>inicia is free software under the MIT license ·
+        <a href="https://github.com/adriandeleon/inicia">Source on GitHub</a> ·
+        <a href="security.html">Security</a> · <a href="faq.html">FAQ</a> · <a href="apps.html">All apps, without JavaScript</a>.
+        App names and logos belong to their owners; inicia downloads each app from its publisher.</p>
+      <p class="copyright">© 2026 Adrian De Leon ·
+        <a href="mailto:adrian.deleon@gmail.com">adrian.deleon@gmail.com</a> ·
+        <a href="https://adeleon.dev">adeleon.dev</a></p>
+    </div>
+  </footer>
+</body>
+</html>
